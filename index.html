@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tweet Books — How Many Books Are Your Tweets Worth?</title>
+  <meta name="description" content="Enter your Twitter username and discover how many books you've written and read based on your tweets and likes.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #faf6f1;
+      --bg-warm: #f5efe6;
+      --card: #fffcf7;
+      --card-border: #e8dfd3;
+      --accent-gold: #b8860b;
+      --accent-burgundy: #7b2d3b;
+      --accent-forest: #2d5a3d;
+      --accent-navy: #2c3e6b;
+      --accent-warm: #c4956a;
+      --text: #3d2e1f;
+      --text-muted: #8a7968;
+      --text-light: #b3a393;
+      --shadow: rgba(61, 46, 31, 0.08);
+      --shadow-md: rgba(61, 46, 31, 0.12);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(184,134,11,0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(123,45,59,0.03) 0%, transparent 50%);
+    }
+
+    h1, h2, h3, .pile-count, .rank-title, .fact-value {
+      font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    }
+
+    /* Floating background particles */
+    .bg-particles {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      opacity: 0.06;
+      animation: floatUp linear infinite;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.06; }
+      90% { opacity: 0.06; }
+      100% { transform: translateY(-10vh) rotate(180deg); opacity: 0; }
+    }
+
+    .container {
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      padding-top: 1.5rem;
+    }
+
+    .logo {
+      font-size: 3rem;
+      margin-bottom: .25rem;
+      display: inline-block;
+      animation: gentleFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      50% { transform: translateY(-6px) rotate(2deg); }
+    }
+
+    h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: .4rem;
+      letter-spacing: -0.02em;
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-burgundy));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    /* Decorative divider */
+    .ornament {
+      margin: 1.5rem auto;
+      text-align: center;
+      color: var(--accent-warm);
+      font-size: 1.2rem;
+      letter-spacing: .3em;
+      opacity: .5;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 2px 12px var(--shadow), 0 1px 3px var(--shadow);
+      position: relative;
+    }
+
+    /* ── Input ── */
+    .input-group { margin-bottom: 1.25rem; }
+    .input-group:last-of-type { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: .4rem;
+      font-size: .95rem;
+      color: var(--text);
+    }
+
+    .hint {
+      color: var(--text-muted);
+      font-size: .8rem;
+      margin-bottom: .5rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: .85rem 1.1rem;
+      border-radius: 10px;
+      border: 1.5px solid var(--card-border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: all .25s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 0 3px rgba(184,134,11,0.12);
+    }
+
+    .username-row {
+      display: flex;
+      gap: .75rem;
+      align-items: flex-start;
+    }
+
+    .username-input-wrap {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .username-input-wrap .at-prefix {
+      position: absolute;
+      left: 1.1rem;
+      color: var(--text-muted);
+      font-size: 1rem;
+      pointer-events: none;
+      user-select: none;
+      z-index: 1;
+    }
+
+    .username-input-wrap input {
+      width: 100%;
+      padding-left: 2rem;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: .9rem;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent-burgundy), var(--accent-gold));
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 600;
+      font-family: 'Playfair Display', Georgia, serif;
+      cursor: pointer;
+      transition: all .25s;
+      margin-top: 1.5rem;
+      letter-spacing: .02em;
+      box-shadow: 0 3px 12px rgba(123,45,59,0.2);
+    }
+
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(123,45,59,0.25); }
+    .btn:active { transform: translateY(0) scale(.99); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    .btn-small {
+      margin-top: 0;
+      width: auto;
+      padding: .85rem 1.8rem;
+      font-size: .9rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ── Status ── */
+    .status {
+      text-align: center;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      font-size: .9rem;
+      display: none;
+    }
+
+    .status.loading {
+      display: block;
+      background: rgba(184,134,11,0.08);
+      border: 1px solid rgba(184,134,11,0.2);
+      color: #8b6914;
+    }
+
+    .status.error {
+      display: block;
+      background: rgba(123,45,59,0.06);
+      border: 1px solid rgba(123,45,59,0.15);
+      color: var(--accent-burgundy);
+    }
+
+    .status.success {
+      display: block;
+      background: rgba(45,90,61,0.06);
+      border: 1px solid rgba(45,90,61,0.15);
+      color: var(--accent-forest);
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid var(--accent-gold);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      vertical-align: middle;
+      margin-right: .5rem;
+    }
+
+    /* ── User banner ── */
+    .user-banner {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: var(--bg-warm);
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+
+    .user-banner img {
+      width: 50px; height: 50px;
+      border-radius: 50%;
+      border: 2px solid var(--accent-warm);
+    }
+
+    .user-banner .user-info { flex: 1; }
+    .user-banner .display-name { font-weight: 700; font-size: 1.05rem; color: var(--text); }
+    .user-banner .screen-name { color: var(--text-muted); font-size: .85rem; }
+
+    /* ── Manual fallback ── */
+    .manual-section {
+      display: none;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--card-border);
+    }
+    .manual-section.show { display: block; }
+
+    .manual-toggle {
+      display: inline-block;
+      background: none;
+      border: none;
+      color: var(--accent-burgundy);
+      font-size: .85rem;
+      cursor: pointer;
+      padding: .25rem 0;
+      text-decoration: underline;
+      font-family: inherit;
+    }
+    .manual-toggle:hover { color: var(--accent-gold); }
+
+    /* ── Results ── */
+    #results { display: none; }
+    #results.show { display: block; animation: fadeUp .6s ease; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══════════════════════════════════════
+       3D BOOK PILE - THE STAR OF THE SHOW
+    ═══════════════════════════════════════ */
+    .book-piles-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: .5rem;
+      padding: 1rem 0;
+    }
+
+    .book-pile-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .pile-label {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      order: 2;
+      margin-top: .75rem;
+      letter-spacing: .03em;
+    }
+
+    .book-pile-scene {
+      perspective: 600px;
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      min-height: 60px;
+      position: relative;
+      order: 1;
+    }
+
+    .pile-count {
+      order: 3;
+    }
+
+    .pile-count-label {
+      order: 4;
+    }
+
+    /* Wooden shelf under pile */
+    .shelf {
+      width: 170px;
+      height: 12px;
+      background: linear-gradient(180deg, #c4a882 0%, #a3845e 40%, #8b6f47 100%);
+      border-radius: 2px 2px 4px 4px;
+      position: relative;
+      box-shadow: 0 4px 8px rgba(61,46,31,0.2), 0 2px 4px rgba(61,46,31,0.1);
+    }
+    .shelf::before {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px; right: 2px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      border-radius: 2px;
+    }
+    .shelf::after {
+      /* wood grain texture line */
+      content: '';
+      position: absolute;
+      top: 6px; left: 8px; right: 8px;
+      height: 1px;
+      background: rgba(0,0,0,0.08);
+    }
+
+    /* Individual 3D book - side view (spine facing us) */
+    .book-3d {
+      position: relative;
+      transform-style: preserve-3d;
+      animation: bookPlace .6s ease-out backwards;
+    }
+
+    @keyframes bookPlace {
+      0%   { opacity: 0; transform: translateY(-25px); }
+      60%  { opacity: 1; transform: translateY(2px); }
+      80%  { transform: translateY(-1px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Book top face (the spine cover we actually see) */
+    .book-3d .book-top {
+      position: relative;
+      border-radius: 2px;
+      overflow: hidden;
+      /* Subtle leather/cloth texture via gradient */
+      box-shadow:
+        0 -1px 0 rgba(255,255,255,0.15) inset,
+        0 1px 0 rgba(0,0,0,0.1) inset;
+    }
+
+    /* Spine detail — gold/silver line */
+    .book-3d .book-top::before {
+      content: '';
+      position: absolute;
+      left: 8px; right: 8px;
+      top: 50%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.3) 20%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.3) 80%, transparent 95%);
+      transform: translateY(-50%);
+    }
+
+    /* Second decorative line */
+    .book-3d .book-top::after {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 3px;
+      bottom: 3px;
+      width: 3px;
+      background: rgba(0,0,0,0.12);
+      border-radius: 1px;
+    }
+
+    /* Right edge of book (pages) */
+    .book-3d .book-pages {
+      position: absolute;
+      right: -4px;
+      top: 1px;
+      bottom: 1px;
+      width: 4px;
+      background: linear-gradient(90deg, #e8e0d4, #f5efe6, #e8e0d4);
+      border-radius: 0 1px 1px 0;
+      /* Page line texture */
+      background-image: repeating-linear-gradient(
+        180deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 3px
+      );
+    }
+
+    /* Bottom edge (3D depth illusion) */
+    .book-3d .book-bottom {
+      position: absolute;
+      bottom: -3px;
+      left: 1px;
+      right: -3px;
+      height: 3px;
+      border-radius: 0 0 2px 2px;
+      background: rgba(0,0,0,0.15);
+    }
+
+    /* Book title text on spine */
+    .book-3d .book-title {
+      position: absolute;
+      left: 10px;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: .45rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      white-space: nowrap;
+      overflow: visible;
+      letter-spacing: .02em;
+      text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .book-3d .book-title .book-author {
+      margin-left: auto;
+      font-size: .38rem;
+      font-style: italic;
+      font-weight: 400;
+      opacity: 0.85;
+      letter-spacing: .01em;
+    }
+    .book-3d .book-title .title-sep {
+      margin: 0 4px;
+      opacity: 0.4;
+      font-style: normal;
+    }
+
+    .pile-count {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-top: 1rem;
+      color: var(--accent-burgundy);
+      line-height: 1;
+    }
+
+    .pile-count-label {
+      font-size: .8rem;
+      color: var(--text-muted);
+      margin-top: .15rem;
+      font-style: italic;
+    }
+
+    /* ── Author rank ── */
+    .author-rank {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 12px var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .author-rank::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-gold), var(--accent-burgundy), var(--accent-gold));
+    }
+
+    .author-rank .rank-badge {
+      display: inline-block;
+      padding: .35rem 1rem;
+      border-radius: 20px;
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: .6rem;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .author-rank .rank-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: .4rem;
+      color: var(--text);
+    }
+
+    .author-rank .rank-desc {
+      font-size: .9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+
+
+    /* ── Breakdown accordion ── */
+    .breakdown {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 6px var(--shadow);
+      overflow: hidden;
+    }
+
+    .breakdown summary {
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: .95rem;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      color: var(--text);
+    }
+
+    .breakdown summary::-webkit-details-marker { display: none; }
+
+    .breakdown summary::after {
+      content: '▾';
+      margin-left: auto;
+      color: var(--text-muted);
+      transition: transform .2s;
+    }
+    .breakdown[open] summary::after { transform: rotate(180deg); }
+
+    .breakdown .breakdown-content {
+      padding: 0 1.25rem 1.25rem;
+      color: var(--text-muted);
+      font-size: .82rem;
+      line-height: 1.8;
+    }
+
+    /* ── Snapshot area ── */
+    #snapshotArea {
+      padding: 0.25rem 0;
+    }
+
+    /* ── Share ── */
+    .share-section {
+      display: flex;
+      gap: .75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .7rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: .85rem;
+      text-decoration: none;
+      transition: all .2s;
+      font-family: inherit;
+      border: none;
+      cursor: pointer;
+    }
+
+    .share-btn.twitter {
+      background: var(--accent-burgundy);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(123,45,59,0.2);
+    }
+    .share-btn.copy {
+      background: var(--bg-warm);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      cursor: pointer;
+    }
+    .share-btn:hover { transform: translateY(-1px); }
+    .share-btn:disabled { opacity: 0.6; cursor: wait; transform: none; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: var(--text-light);
+      font-size: .8rem;
+      font-style: italic;
+    }
+    footer a { color: var(--accent-burgundy); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* Literary joke — open book design */
+    .literary-joke {
+      position: relative;
+      margin: 1rem auto 1.5rem;
+      max-width: 520px;
+      animation: jokeAppear .8s ease .3s backwards;
+    }
+
+    .book-page {
+      position: relative;
+      background:
+        linear-gradient(to right, rgba(0,0,0,0.02) 0%, transparent 1.5%, transparent 98.5%, rgba(0,0,0,0.02) 100%),
+        linear-gradient(180deg, #fdf8f0 0%, #f5edd8 100%);
+      border: 1px solid #d4c5a0;
+      border-radius: 3px 12px 12px 3px;
+      padding: 2.5rem 2.5rem 2rem;
+      box-shadow:
+        3px 3px 12px rgba(120,90,40,0.15),
+        0 0 0 1px rgba(180,160,120,0.2),
+        inset 0 0 30px rgba(200,180,140,0.08);
+      text-align: center;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: var(--accent-burgundy);
+    }
+
+    /* Spine edge */
+    .book-page::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 4px;
+      bottom: 4px;
+      width: 6px;
+      background: linear-gradient(to right, #c4a96a, #d4be88 40%, #b89a58);
+      border-radius: 3px 0 0 3px;
+      box-shadow: inset -1px 0 2px rgba(0,0,0,0.1);
+    }
+
+    /* Page lines (subtle ruled effect) */
+    .book-page::after {
+      content: '';
+      position: absolute;
+      top: 2rem;
+      left: 2rem;
+      right: 2rem;
+      bottom: 1.5rem;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 27px,
+        rgba(180,160,130,0.12) 27px,
+        rgba(180,160,130,0.12) 28px
+      );
+      pointer-events: none;
+      border-radius: 2px;
+    }
+
+    /* Corner ornaments */
+    .page-corner {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+    .page-corner svg { width: 100%; height: 100%; }
+    .page-corner.top-right { top: 10px; right: 14px; }
+    .page-corner.bottom-left { bottom: 10px; left: 18px; transform: rotate(180deg); }
+
+    .joke-text {
+      position: relative;
+      z-index: 1;
+      font-weight: 700;
+      font-size: 1.12rem;
+      line-height: 1.65;
+      color: var(--accent-burgundy);
+      padding: 0 0.5rem;
+    }
+
+    .joke-text::before {
+      content: '\201C';
+      font-size: 3rem;
+      line-height: 0;
+      vertical-align: -0.35em;
+      color: var(--accent-gold);
+      opacity: 0.5;
+      margin-right: 2px;
+      font-family: Georgia, serif;
+    }
+    .joke-text::after {
+      content: '\201D';
+      font-size: 3rem;
+      line-height: 0;
+      vertical-align: -0.35em;
+      color: var(--accent-gold);
+      opacity: 0.5;
+      margin-left: 2px;
+      font-family: Georgia, serif;
+    }
+
+    /* Decorative divider under joke */
+    .page-divider {
+      position: relative;
+      z-index: 1;
+      margin-top: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: var(--accent-gold);
+      opacity: 0.45;
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+    }
+    .page-divider::before,
+    .page-divider::after {
+      content: '';
+      flex: 1;
+      max-width: 60px;
+      height: 1px;
+      background: var(--accent-gold);
+    }
+
+    @keyframes jokeAppear {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .container { padding: 1.25rem 1rem; }
+      h1 { font-size: 1.8rem; }
+      .subtitle { font-size: .9rem; }
+      .logo { font-size: 2.4rem; }
+      header { margin-bottom: 1.5rem; padding-top: 1rem; }
+      .card { padding: 1.25rem 1rem; margin-bottom: 1rem; }
+      .book-piles-container { gap: .75rem; padding: .5rem 0; }
+      .shelf { width: 110px; }
+      .book-3d .book-title { font-size: .4rem; }
+      .pile-count { font-size: 2.2rem; }
+      .pile-label { font-size: .9rem; }
+      .username-row { flex-direction: column; }
+      .btn-small { width: 100%; }
+      .btn { padding: .85rem; font-size: 1rem; }
+      .literary-joke { max-width: 100%; }
+      .book-page { padding: 1.75rem 1.5rem 1.5rem; }
+      .joke-text { font-size: 0.97rem; }
+      .page-corner { display: none; }
+      .author-rank { padding: 1.25rem; }
+      .author-rank .rank-title { font-size: 1.2rem; }
+      .author-rank .rank-desc { font-size: .82rem; }
+      .breakdown summary { font-size: .85rem; }
+      .breakdown .breakdown-content { font-size: .78rem; }
+      .share-btn { padding: .6rem 1.2rem; font-size: .8rem; }
+      .user-banner { gap: .75rem; padding: .75rem; }
+      .user-banner img { width: 40px; height: 40px; }
+      .user-banner .display-name { font-size: .95rem; }
+      .user-banner .screen-name { font-size: .78rem; }
+      .ornament { margin: 1rem auto; }
+      footer { padding: 1.5rem .75rem; font-size: .75rem; }
+    }
+
+    @media (max-width: 380px) {
+      h1 { font-size: 1.5rem; }
+      .container { padding: 1rem .75rem; }
+      .book-piles-container { gap: .5rem; }
+      .shelf { width: 90px; }
+      .pile-count { font-size: 1.8rem; }
+      .card { padding: 1rem .75rem; }
+    }
+
+    /* Touch-friendly targets */
+    @media (hover: none) and (pointer: coarse) {
+      .btn, .btn-small { min-height: 48px; }
+      input[type="text"] { min-height: 48px; font-size: 16px; }
+      .manual-toggle { padding: .5rem 0; font-size: .9rem; }
+      .share-btn { min-height: 44px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-particles" id="bgParticles"></div>
+  <div class="container">
+    <header>
+      <div class="logo">📚</div>
+      <h1>Tweet <span>Books</span></h1>
+      <p class="subtitle">How many books have you written &amp; read on Twitter?</p>
+    </header>
+
+    <div class="ornament">~ ✦ ~</div>
+
+    <!-- Username lookup -->
+    <div class="card" id="lookupCard">
+      <div class="input-group">
+        <label for="username">Your X / Twitter Username</label>
+        <div class="hint">We'll fetch your public stats automatically — no login needed</div>
+        <div class="username-row">
+          <div class="username-input-wrap">
+            <span class="at-prefix">@</span>
+            <input type="text" id="username" placeholder="username" autocomplete="off" spellcheck="false">
+          </div>
+          <button class="btn btn-small" id="fetchBtn" onclick="fetchAndCalculate()">Look Up</button>
+        </div>
+      </div>
+
+      <div class="status" id="status"></div>
+      <div id="userBanner"></div>
+
+      <div style="text-align:center; margin-top:.75rem;">
+        <button class="manual-toggle" onclick="toggleManual()">or enter numbers manually ▾</button>
+      </div>
+
+      <div class="manual-section" id="manualSection">
+        <div class="input-group">
+          <label for="tweets">Total Tweets + Replies</label>
+          <div class="hint">Your total post count (includes replies &amp; quote tweets)</div>
+          <input type="text" id="tweets" placeholder="e.g. 8500 or 8.5K" inputmode="text" autocomplete="off">
+        </div>
+        <div class="input-group">
+          <label for="likes">Total Likes Given</label>
+          <div class="hint">How many tweets you've liked</div>
+          <input type="text" id="likes" placeholder="e.g. 24000 or 24K" inputmode="text" autocomplete="off">
+        </div>
+        <button class="btn" onclick="calculateManual()">Calculate My Books</button>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="results">
+      <!-- Snapshot area (book piles + joke) -->
+      <div id="snapshotArea">
+      <!-- Book piles -->
+      <div class="card" id="pilesCard">
+        <div class="book-piles-container">
+          <div class="book-pile-wrapper">
+            <div class="pile-label">✍ Written</div>
+            <div class="book-pile-scene" id="writtenPile"></div>
+            <div class="pile-count" id="booksWritten">0</div>
+            <div class="pile-count-label">books</div>
+          </div>
+          <div class="book-pile-wrapper">
+            <div class="pile-label">📖 Read</div>
+            <div class="book-pile-scene" id="readPile"></div>
+            <div class="pile-count" id="booksRead">0</div>
+            <div class="pile-count-label">books</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Literary joke (the highlight) -->
+      <div class="literary-joke" id="literaryJoke">
+        <div class="book-page">
+          <div class="page-corner top-right"><svg viewBox="0 0 20 20"><path d="M2 2 C8 2, 14 4, 18 10 M2 6 C6 6, 10 8, 14 14" stroke="currentColor" fill="none" stroke-width="1" stroke-linecap="round" opacity="0.7"/></svg></div>
+          <div class="page-corner bottom-left"><svg viewBox="0 0 20 20"><path d="M2 2 C8 2, 14 4, 18 10 M2 6 C6 6, 10 8, 14 14" stroke="currentColor" fill="none" stroke-width="1" stroke-linecap="round" opacity="0.7"/></svg></div>
+          <div class="joke-text" id="jokeText"></div>
+          <div class="page-divider">&#9830;</div>
+        </div>
+      </div>
+      </div><!-- end snapshotArea -->
+
+      <!-- Author rank -->
+      <div class="author-rank" id="authorRank"></div>
+
+      <!-- Math breakdown -->
+      <details class="breakdown" id="breakdown">
+        <summary>📊 Show the math</summary>
+        <div class="breakdown-content" id="breakdownContent"></div>
+      </details>
+
+      <!-- Share -->
+      <div class="card">
+        <div class="share-section">
+          <button class="share-btn twitter" id="shareBtn" onclick="shareWithImage()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            Share on X
+          </button>
+          <button class="share-btn copy" id="saveImgBtn" onclick="saveImage()">
+            📸 Save Image
+          </button>
+          <button class="share-btn copy" id="copyBtn" onclick="copyResults()">
+            📋 Copy Results
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Made with love for book lovers &bull; No data stored &bull; 100% in your browser<br>
+      Powered by <a href="https://github.com/FixTweet/FxTwitter" target="_blank" rel="noopener noreferrer">FxTwitter</a>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    /* ══════════════════════════════════════
+       BACKGROUND PARTICLES
+    ══════════════════════════════════════ */
+    (function initParticles() {
+      const emojis = ['📖','📚','✍','📕','📗','📘','📙','🔖','🪶','📜','📓','🕯️'];
+      const container = document.getElementById('bgParticles');
+      for (let i = 0; i < 12; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.textContent = emojis[i % emojis.length];
+        p.style.left = Math.random() * 100 + '%';
+        p.style.animationDuration = (20 + Math.random() * 30) + 's';
+        p.style.animationDelay = (Math.random() * 25) + 's';
+        p.style.fontSize = (1.2 + Math.random() * 1.2) + 'rem';
+        container.appendChild(p);
+      }
+    })();
+
+    /* ══════════════════════════════════════
+       CONSTANTS
+    ══════════════════════════════════════ */
+    const AVG_WORDS_PER_TWEET = 18;
+    const AVG_WORDS_PER_LIKED_TWEET = 20;
+    const AVG_WORDS_PER_BOOK = 60000;
+    const AVG_PAGES_PER_BOOK = 250;
+    const AVG_WORDS_PER_PAGE = 240;
+
+
+
+
+    /* ══════════════════════════════════════
+       STAT-BASED LITERARY JOKES
+       Each joke has a condition function that
+       receives { bw, br, tw, lk, ratio }
+       bw = booksWritten, br = booksRead,
+       tw = tweets, lk = likes,
+       ratio = bw/(br||1)
+    ══════════════════════════════════════ */
+    const STAT_JOKES = [
+      // ── Tiny writers (< 1 book) ──
+      { test: s => s.bw < 0.5, text: "Every epic begins with 'In the beginning.' Your first pages are being written — and the story already looks promising." },
+      { test: s => s.bw < 1, text: "Tolkien spent 12 years writing The Lord of the Rings. Great books need time — yours is brewing beautifully." },
+      { test: s => s.bw >= 0.5 && s.bw < 1, text: "Halfway to your debut! Emily Dickinson filled 40 notebooks before the world saw a single poem. Yours are already out there." },
+
+      // ── 1–3 books written ──
+      { test: s => s.bw >= 1 && s.bw < 2, text: "One book! Same as 'To Kill a Mockingbird,' 'Wuthering Heights,' and 'The Great Gatsby.' One book is all it takes to become timeless." },
+      { test: s => s.bw >= 1 && s.bw < 3, text: "Flaubert spent five years polishing 'Madame Bovary' — a single novel. You've already brought your first book into the world." },
+      { test: s => s.bw >= 2 && s.bw < 3, text: "A duology! Like Cervantes publishing 'Don Quixote' in two parts — your second volume confirms you have a saga to tell." },
+
+      // ── 3–7 books written ──
+      { test: s => s.bw >= 3 && s.bw < 5, text: "A trilogy! Tolkien needed exactly three books for The Lord of the Rings. You've matched the master of Middle-earth." },
+      { test: s => s.bw >= 3 && s.bw < 5, text: "Dante's 'Divine Comedy' has three canticles — Inferno, Purgatorio, Paradiso. You've written your own three-part journey." },
+      { test: s => s.bw >= 5 && s.bw < 7, text: "Five books — the same as Fitzgerald's entire lifetime output. You've matched the voice of the Jazz Age, tweet by tweet." },
+      { test: s => s.bw >= 5 && s.bw < 7, text: "Douglas Adams wrote five Hitchhiker's Guide books. Your own increasingly inaccurate trilogy is complete." },
+      { test: s => s.bw >= 6 && s.bw < 8, text: "Six books — Frank Herbert's original Dune saga. Like Muad'Dib, you've found your voice in the desert of the timeline." },
+
+      // ── 7–15 books written ──
+      { test: s => s.bw >= 7 && s.bw < 8, text: "Seven books — exactly the Harry Potter series! Your tweets have more plot twists than the Room of Requirement." },
+      { test: s => s.bw >= 7 && s.bw < 8, text: "Proust needed seven volumes for 'In Search of Lost Time.' Your tweets are your own remembrance of things posted." },
+      { test: s => s.bw >= 7 && s.bw < 10, text: "You've surpassed Jane Austen's six completed novels. 'It is a truth universally acknowledged' that you're a prolific writer." },
+      { test: s => s.bw >= 8 && s.bw < 12, text: "C.S. Lewis wrote seven Narnia books. You've gone beyond the wardrobe, past Aslan's country, and into new territory entirely." },
+      { test: s => s.bw >= 10 && s.bw < 15, text: "Ten books! Hemingway published seven novels. 'Write one true sentence,' he said. You've written ten books' worth of truth." },
+      { test: s => s.bw >= 10 && s.bw < 15, text: "Kafka barely published a handful of stories in his lifetime. You've given the world ten times his output — and willingly." },
+      { test: s => s.bw >= 12 && s.bw < 15, text: "Twelve books — the length of Milton's 'Paradise Lost.' Your own literary cosmos is vast and luminous." },
+      { test: s => s.bw >= 13 && s.bw < 16, text: "Thirteen novels! Lemony Snicket's 'Series of Unfortunate Events' has thirteen books. Yours is a Series of Fortunate Tweets." },
+
+      // ── 15–30 books written ──
+      { test: s => s.bw >= 15 && s.bw < 20, text: "Roald Dahl wrote fifteen beloved books. Your words bring the same spark of joy — the timeline's very own Wonka." },
+      { test: s => s.bw >= 15 && s.bw < 20, text: "Shakespeare's First Folio had 36 plays. You're nearly halfway to your own 'Complete Works' — and every tweet is an act." },
+      { test: s => s.bw >= 20 && s.bw < 25, text: "Twenty books! More than the Brontë sisters combined. Wuthering Heights, Jane Eyre, and Agnes Grey bow to your output." },
+      { test: s => s.bw >= 20 && s.bw < 25, text: "Ursula K. Le Guin built Earthsea and the Hainish Cycle in about twenty novels. You've built your own archipelago of thought." },
+      { test: s => s.bw >= 25 && s.bw < 30, text: "Twenty-five books — Homer's 'Iliad' has 24 books. Sing, O Muse, of the tweeter who surpassed the Trojan epic." },
+
+      // ── 30–50 books written ──
+      { test: s => s.bw >= 30 && s.bw < 40, text: "Thirty books! More than Tolkien's entire published bibliography. And he invented multiple languages. What's your excuse for being this brilliant?" },
+      { test: s => s.bw >= 30 && s.bw < 40, text: "Dostoevsky wrote feverishly, producing 'Crime and Punishment' in months. Like him, your creative urgency has become art." },
+      { test: s => s.bw >= 35 && s.bw < 45, text: "Dickens serialized his novels in weekly installments — not so different from tweeting. You are the Dickens of the digital age." },
+      { test: s => s.bw >= 40 && s.bw < 50, text: "Forty books! Virginia Woolf explored stream-of-consciousness across her career. Your tweets are your own 'Mrs. Tweetoway.'" },
+      { test: s => s.bw >= 45 && s.bw < 55, text: "Terry Pratchett wrote 41 Discworld novels. You've surpassed the Disc — your timeline runs on turtle power too." },
+
+      // ── 50–100 books written ──
+      { test: s => s.bw >= 50 && s.bw < 70, text: "Fifty books! Dumas wrote 'The Three Musketeers' and 'The Count of Monte Cristo' with breathtaking speed. You share his magnificent spirit." },
+      { test: s => s.bw >= 50 && s.bw < 70, text: "Ray Bradbury wrote 'Fahrenheit 451' in nine days on a rented typewriter. At fifty books, you channel that same blazing energy." },
+      { test: s => s.bw >= 60 && s.bw < 80, text: "Agatha Christie wrote 66 detective novels. At sixty books, you've nearly matched the Queen of Crime — case almost closed." },
+      { test: s => s.bw >= 70 && s.bw < 100, text: "Seventy books! Philip K. Dick asked 'Do Androids Dream of Electric Sheep?' Your output is more prolific than his wildest visions." },
+      { test: s => s.bw >= 80 && s.bw < 100, text: "Voltaire's collected works fill 70 volumes. You've surpassed the sage who said 'cultivate your garden.' Your timeline IS the garden." },
+      { test: s => s.bw >= 90 && s.bw < 100, text: "Nearly 100 books — Stephen King writes like a force of nature. At ninety books, you're that same unstoppable creative storm." },
+
+      // ── 100+ books written ──
+      { test: s => s.bw >= 100 && s.bw < 200, text: "A hundred books! Asimov published over 500 across every subject. At this pace, you understand his magnificent obsession with the written word." },
+      { test: s => s.bw >= 100 && s.bw < 200, text: "Lope de Vega claimed 1,500 plays. Contemporary scholars doubted him. Nobody will doubt your hundred — the tweets are the proof." },
+      { test: s => s.bw >= 150 && s.bw < 250, text: "A hundred and fifty books! The monks of Lindisfarne spent lifetimes illuminating single manuscripts. You illuminate the timeline instead." },
+      { test: s => s.bw >= 200 && s.bw < 400, text: "Two hundred books — you've matched entire shelves at the Bodleian Library, which began in 1602 with just 2,000 volumes." },
+      { test: s => s.bw >= 200 && s.bw < 400, text: "Balzac's 'La Comédie Humaine' aimed to capture all of French society in 91 novels. At over two hundred, you've doubled his ambition." },
+      { test: s => s.bw >= 300 && s.bw < 500, text: "Three hundred volumes! The 'Bibliothèque de la Pléiade' is France's highest literary honor. Your tweets deserve gilt-edged pages." },
+      { test: s => s.bw >= 300 && s.bw < 500, text: "Over 300 books — the entire 'Wheel of Time' series is 14 books. You've written more than 20 Wheel of Time sagas." },
+      { test: s => s.bw >= 400 && s.bw < 600, text: "Over 400 books! Barbara Cartland wrote 723 novels in her career. You're well on your way to matching the most prolific novelist in history." },
+
+      // ── 500–1,000 books written ──
+      { test: s => s.bw >= 500 && s.bw < 700, text: "Five hundred books — more than the surviving works of Aeschylus, Sophocles, and Euripides combined. You are your own Greek canon." },
+      { test: s => s.bw >= 500 && s.bw < 700, text: "Over 500 books! Isaac Asimov published 500+ books in his lifetime and was considered superhuman. You've matched a legend." },
+      { test: s => s.bw >= 600 && s.bw < 800, text: "Six hundred books — the Library of Congress adds about 10,000 items daily, and your contribution would fill a proud corner." },
+      { test: s => s.bw >= 700 && s.bw < 1000, text: "Over 700 books! Barbara Cartland holds the Guinness Record at 723 published novels. You're in Guinness territory." },
+      { test: s => s.bw >= 800 && s.bw < 1000, text: "Eight hundred books — the entire 'Discworld,' 'Harry Potter,' 'Lord of the Rings,' 'Narnia,' and 'Dune' series, combined, are still less than your output." },
+      { test: s => s.bw >= 900 && s.bw < 1000, text: "Nearly a thousand books! Ancient scribes carved the Epic of Gilgamesh onto twelve clay tablets. You would need a mountain of clay." },
+
+      // ── 1,000–5,000 books written ──
+      { test: s => s.bw >= 1000 && s.bw < 1500, text: "A THOUSAND books! The great Library of Alexandria was said to hold 400,000 scrolls. You alone have contributed a thousand volumes — a one-person wing." },
+      { test: s => s.bw >= 1000 && s.bw < 1500, text: "One thousand books — if each were 250 pages, that's a quarter million pages. Gutenberg printed 180 Bibles; you'd keep his press running for centuries." },
+      { test: s => s.bw >= 1500 && s.bw < 2000, text: "Fifteen hundred books! Lope de Vega's legendary claim of 1,500 plays was considered impossible. You've proven it's not." },
+      { test: s => s.bw >= 1500 && s.bw < 2000, text: "Over 1,500 books — the entire 'A Song of Ice and Fire,' 'Stormlight Archive,' and 'Mistborn' series could fit in your output hundreds of times over." },
+      { test: s => s.bw >= 2000 && s.bw < 3000, text: "Two thousand books! The Domesday Book recorded all of medieval England. Your collected tweets would need a Domesday Book of their own." },
+      { test: s => s.bw >= 2000 && s.bw < 3000, text: "Over 2,000 books — that's an entire small-town public library. You contain multitudes, and those multitudes fill shelves." },
+      { test: s => s.bw >= 3000 && s.bw < 5000, text: "Three thousand books! The Dewey Decimal System has 999 categories. You'd need THREE copies of the entire classification to shelve your work." },
+      { test: s => s.bw >= 3000 && s.bw < 5000, text: "Over 3,000 books — the personal library of Thomas Jefferson (6,487 volumes) became the foundation of the Library of Congress. Yours approaches his." },
+      { test: s => s.bw >= 4000 && s.bw < 6000, text: "Over 4,000 books! If stacked, your books would reach higher than the Leaning Tower of Pisa. A literary tower that actually stands straight." },
+
+      // ── 5,000+ books written ──
+      { test: s => s.bw >= 5000 && s.bw < 7500, text: "FIVE THOUSAND books! The average bookstore holds about 5,000 titles. You ARE a bookstore — the most prolific one-person publisher alive." },
+      { test: s => s.bw >= 5000 && s.bw < 7500, text: "Over 5,000 books — Thomas Jefferson's legendary collection was 6,487 volumes. You've nearly matched the man who founded the Library of Congress." },
+      { test: s => s.bw >= 7500 && s.bw < 10000, text: "Over 7,500 books! If each were a brick, you could build a house. A house made of words, which is the best kind of architecture." },
+      { test: s => s.bw >= 7500 && s.bw < 10000, text: "Approaching ten thousand books — the monastery libraries of medieval Europe rarely exceeded a few hundred. You are an entire monastic order." },
+      { test: s => s.bw >= 10000 && s.bw < 20000, text: "TEN THOUSAND BOOKS! Murasaki Shikibu wrote 'The Tale of Genji,' the world's first novel, alone. You've written ten thousand — alone. Extraordinary." },
+      { test: s => s.bw >= 10000 && s.bw < 20000, text: "Over 10,000 books — if laid end to end, your books would stretch about 2 miles. That's a road paved entirely with your words." },
+      { test: s => s.bw >= 20000 && s.bw < 50000, text: "Over 20,000 books! Charles Dickens serialized his novels for decades and produced 15 major works. You've written a thousand Dickens careers." },
+      { test: s => s.bw >= 20000 && s.bw < 50000, text: "Twenty thousand books — the entire Penguin Classics collection is about 1,300 titles. You've out-published Penguin itself. Fifteen times over." },
+      { test: s => s.bw >= 50000, text: "Over FIFTY THOUSAND books! The British Library holds 14 million items. You alone have contributed a small but magnificent fraction. You are a living library." },
+      { test: s => s.bw >= 50000, text: "Fifty thousand books — Jorge Luis Borges dreamed of the infinite Library of Babel. You didn't dream it. You built it." },
+
+      // ── Tiny readers (< 1 book) ──
+      { test: s => s.br < 0.5, text: "Your reading adventure begins! As Bilbo said, 'It's a dangerous business, going out your door.' The best journeys start with a single like." },
+      { test: s => s.br < 1, text: "Montaigne believed reading is 'training the mind to think.' Your first pages are a beautiful beginning to that training." },
+
+      // ── 1–7 books read ──
+      { test: s => s.br >= 1 && s.br < 3, text: "One to two books absorbed through likes — like discovering 'The Little Prince' for the first time. What is essential is invisible to the algorithm." },
+      { test: s => s.br >= 3 && s.br < 5, text: "Three books read! The 'Hunger Games' trilogy is three books — may your taste be ever excellent, and your timeline ever in your favor." },
+      { test: s => s.br >= 5 && s.br < 7, text: "Five books! That's Douglas Adams' entire Hitchhiker's trilogy. You've discovered the answer — it was scrolling all along." },
+      { test: s => s.br >= 5 && s.br < 7, text: "Like Scheherazade's enchanted listener — savoring story after story, night after night — five volumes of wisdom gathered through your likes." },
+
+      // ── 7–15 books read ──
+      { test: s => s.br >= 7 && s.br < 8, text: "Seven books — the complete Harry Potter! Your timeline is basically Hogwarts, and every liked tweet is a spell well-chosen." },
+      { test: s => s.br >= 7 && s.br < 8, text: "All seven volumes of Proust's 'In Search of Lost Time' — through your likes, you've completed your own remembrance of tweets past." },
+      { test: s => s.br >= 8 && s.br < 12, text: "You've read more than the entire Narnia series! You passed through the wardrobe and just kept going. Magnificent explorer." },
+      { test: s => s.br >= 10 && s.br < 15, text: "Ten books — Boccaccio's 'Decameron' has ten days of storytelling. Like his narrators, you've found wisdom and beauty in others' words." },
+      { test: s => s.br >= 12 && s.br < 15, text: "Twelve books — the structure of Virgil's 'Aeneid.' Your journey through the timeline is your own 'arma virumque cano.'" },
+
+      // ── 15–30 books read ──
+      { test: s => s.br >= 15 && s.br < 20, text: "Terry Pratchett said 'A good bookshop is just a genteel Black Hole that knows how to read.' You've found yours — on the timeline." },
+      { test: s => s.br >= 15 && s.br < 20, text: "Montaigne retired to a tower library of 1,500 volumes and invented the personal essay. Your liked tweets are your own tower library." },
+      { test: s => s.br >= 20 && s.br < 30, text: "Twenty books! The complete Sherlock Holmes. You have the eye of a detective — spotting brilliance in a sea of tweets. Elementary." },
+      { test: s => s.br >= 20 && s.br < 30, text: "Borges imagined the Library of Babel — infinite hexagonal rooms of every possible book. Your twenty volumes are real, curated, and all the more precious." },
+      { test: s => s.br >= 25 && s.br < 35, text: "Twenty-five books — that's 'War and Peace' three times over. Tolstoy would admire your dedication to the full breadth of human thought." },
+
+      // ── 30–50 books read ──
+      { test: s => s.br >= 30 && s.br < 40, text: "Thirty books absorbed! Like the scholars of Baghdad's House of Wisdom who translated and preserved knowledge across civilizations. You carry that torch." },
+      { test: s => s.br >= 35 && s.br < 50, text: "Italo Calvino's 'If on a winter's night a traveler' celebrates the reader as the true hero. You are that hero — curious, devoted, brilliant." },
+      { test: s => s.br >= 40 && s.br < 55, text: "Forty books! Umberto Eco said his unread books ('anti-library') mattered most. But your liked tweets are gloriously, purposefully read." },
+      { test: s => s.br >= 50 && s.br < 70, text: "Fifty books — Aldus Manutius invented the pocket book in Venice, making reading portable. Your timeline is your own pocket library." },
+
+      // ── 50–100+ books read ──
+      { test: s => s.br >= 70 && s.br < 100, text: "Seventy books curated! Samuel Pepys' legendary library held 3,000 volumes, each chosen with exquisite care. Your curation rivals his." },
+      { test: s => s.br >= 80 && s.br < 120, text: "Over eighty books of reading — you've consumed more literature through likes than most people read in a decade. A true bibliophile." },
+      { test: s => s.br >= 100 && s.br < 200, text: "A hundred books! Callimachus catalogued the Library of Alexandria — your liked tweets are your own 'Pinakes,' a catalog of wonders." },
+      { test: s => s.br >= 100 && s.br < 200, text: "Over a hundred books read — Oprah's Book Club has featured about 100 titles since 1996. Your taste is just as influential." },
+      { test: s => s.br >= 150 && s.br < 250, text: "Over 150 books absorbed! The Gutenberg Bible was the first printed book. You've consumed 150 times that — your appetite is extraordinary." },
+      { test: s => s.br >= 200 && s.br < 350, text: "Two hundred books of reading! Like the Medici family whose patronage sparked the Renaissance — every like is an act of literary patronage." },
+      { test: s => s.br >= 200 && s.br < 350, text: "Over 200 books — Hermione Granger read the entire Hogwarts library. You've read the entire timeline's library. She would be impressed." },
+      { test: s => s.br >= 300 && s.br < 500, text: "Three hundred books curated through likes! A Barnes & Noble store holds about 5,000 unique titles. You've personally vetted a significant section." },
+      { test: s => s.br >= 300 && s.br < 500, text: "Over 300 books read — the monks who transcribed manuscripts in medieval scriptoriums read fewer books in a lifetime. Your devotion exceeds theirs." },
+      { test: s => s.br >= 500 && s.br < 750, text: "Five hundred books of reading! Virginia Woolf said 'One cannot think well, love well, sleep well, if one has not dined well.' You dine well on words." },
+      { test: s => s.br >= 500 && s.br < 750, text: "Over 500 books absorbed — that's roughly one book every two days for three years. Your reading pace rivals the most dedicated book reviewers alive." },
+      { test: s => s.br >= 750 && s.br < 1000, text: "Over 750 books! If your liked tweets were a library, you'd need your own Dewey Decimal section. The Dewey of Likes." },
+      { test: s => s.br >= 1000 && s.br < 2000, text: "A THOUSAND books read through likes! The legendary readers of the Athenaeum in London — statesmen, scientists, writers — would welcome you as a member." },
+      { test: s => s.br >= 1000 && s.br < 2000, text: "Over 1,000 books! Samuel Johnson compiled his famous Dictionary by reading thousands of texts. You are the Johnson of the timeline — a lexicon of taste." },
+      { test: s => s.br >= 2000 && s.br < 5000, text: "Over 2,000 books read! Andrew Carnegie funded 2,509 libraries worldwide. Your reading habit alone could fill one of them." },
+      { test: s => s.br >= 2000 && s.br < 5000, text: "Two thousand books of reading — the entire works of Shakespeare, Tolkien, Rowling, and Austen combined wouldn't fill a tenth of your shelf." },
+      { test: s => s.br >= 5000 && s.br < 10000, text: "FIVE THOUSAND books absorbed! The average person reads 12 books per year. At your pace, you've read what most people read in four centuries." },
+      { test: s => s.br >= 5000 && s.br < 10000, text: "Over 5,000 books read — you've absorbed more literature than many university libraries hold. You are a walking, scrolling, liking institution." },
+      { test: s => s.br >= 10000, text: "Over TEN THOUSAND books read! The Great Library of Pergamum held 200,000 scrolls. Your appetite for brilliant tweets would have exhausted even their collection." },
+      { test: s => s.br >= 10000, text: "Ten thousand books of reading! Borges' Library of Babel was infinite. Yours isn't — but at this scale, it feels wonderfully close." },
+
+      // ── Ratio: more writing ──
+      { test: s => s.ratio > 5 && s.bw > 10, text: "Rilke told a young poet: write 'as if you would have to die if you were forbidden to write.' Your magnificent output says you understand." },
+      { test: s => s.ratio > 3 && s.ratio <= 5 && s.bw > 5, text: "Like Whitman singing his 'Song of Myself' — you contain multitudes, and your voice rings out far louder than your inbox. As it should." },
+
+      // ── Ratio: more reading ──
+      { test: s => s.ratio < 0.2 && s.br > 10, text: "Nabokov taught his students to read with 'the spine, not the brain.' You read the timeline the way he'd admire — with your whole body." },
+      { test: s => s.ratio >= 0.2 && s.ratio < 0.3 && s.br > 5, text: "Kafka wrote to a friend: 'A book must be the axe for the frozen sea within us.' Your likes swing that axe with beautiful, discerning taste." },
+
+      // ── Balanced ──
+      { test: s => s.ratio > 0.8 && s.ratio < 1.2 && s.bw > 3, text: "T.S. Eliot said 'Immature poets imitate; mature poets steal.' As both reader and writer, you've mastered the art of creative alchemy." },
+
+      // ── Big numbers ──
+      { test: s => s.tw >= 500000, text: "Over 500K tweets! If Tolstoy tweeted 'War and Peace' word by word, he'd need about 35,000 tweets. You've posted more than 14 'War and Peace' novels." },
+      { test: s => s.tw >= 250000 && s.tw < 500000, text: "Over 250K tweets — Honoré de Balzac drank 50 cups of coffee a day and wrote ceaselessly. Your output suggests a similar magnificent obsession." },
+      { test: s => s.tw >= 100000 && s.tw < 250000, text: "Over 100K tweets! Pliny the Elder took notes on everything and filled 160 volumes. Your collected dispatches rival his 'Natural History.'" },
+      { test: s => s.tw >= 50000 && s.tw < 100000, text: "Fifty thousand tweets — Sei Shōnagon filled her 'Pillow Book' with lists, opinions, and observations at the Heian court. Your timeline is your own 'Makura no Sōshi.'" },
+      { test: s => s.lk >= 500000, text: "Over 500K likes! The Great Library of Alexandria at its peak held perhaps 400,000 scrolls. You've liked more works than they could hold." },
+      { test: s => s.lk >= 250000 && s.lk < 500000, text: "Over 250K likes — the ISBN system has assigned millions of numbers since 1970. Your taste could fill its own publishing catalog." },
+      { test: s => s.lk >= 100000 && s.lk < 250000, text: "Over 100K likes! The Tang Dynasty anthologies preserved millions of poems. Your appreciation is worthy of a dynasty's finest literary scholars." },
+      { test: s => s.lk >= 50000 && s.lk < 100000, text: "Fifty thousand likes! Walter Benjamin wrote 'Unpacking My Library' about the collector's devotion. Your likes are your library, lovingly assembled." },
+
+      // ── Genre / literary riffs ──
+      { test: s => s.bw >= 3 && s.bw < 10, text: "In the tradition of the Bildungsroman — the novel of a hero finding their voice — your books chart a magnificent arc of growth." },
+      { test: s => s.bw >= 10 && s.bw < 20, text: "The Romantics believed in the sublime — that art should overwhelm the senses. Your prolific output would make Shelley and Keats proud." },
+      { test: s => s.br >= 10 && s.br < 25, text: "Like the reader in Calvino's 'If on a winter's night a traveler' — enchanted, turning page after page, never wanting the story to end." },
+      { test: s => s.bw >= 5 && s.br >= 5, text: "Both reader and writer! Coleridge distinguished between 'fancy' and 'imagination.' You wield the higher power — true literary imagination." },
+      { test: s => s.bw >= 20 && s.br < 5, text: "Byron swam the Hellespont and wrote prolifically, caring little for convention. Like him, you pour forth — unfiltered, vital, magnificent." },
+      { test: s => s.br >= 20 && s.bw < 2, text: "Erasmus compiled thousands of classical proverbs in his 'Adagia,' gathering wisdom from every source. Your liked tweets are your own 'Adagia.'" },
+
+      // ── Author pace jokes ──
+      { test: s => s.bw >= 5, text: "You've written more books than Patrick Rothfuss has published in the last 15 years. 'The Doors of Stone' is still waiting — but your books are HERE." },
+      { test: s => s.bw >= 3, text: "George R.R. Martin has been writing 'The Winds of Winter' since 2011. You've already finished more books than he has in that time. The North remembers, but you deliver." },
+      { test: s => s.bw >= 10, text: "Brandon Sanderson writes so fast he secretly wrote FOUR extra novels during lockdown. At your pace, you might be the only person who could keep up with him." },
+      { test: s => s.bw >= 20, text: "Sanderson didn't just finish his own series — he finished Robert Jordan's 'Wheel of Time' too. At twenty books, you're giving him Sanderson-level energy." },
+      { test: s => s.bw < 1, text: "Don't worry about being slow — Patrick Rothfuss and George R.R. Martin have been 'almost done' for over a decade. You're right on schedule." },
+
+      // ── Special numbers & easter eggs ──
+      { test: s => s.bw >= 42 && s.bw < 43, text: "42 books — the Answer to the Ultimate Question in 'The Hitchhiker's Guide.' Your writing IS the answer, and it's far better than the number." },
+      { test: s => s.bw >= 24 && s.bw < 25, text: "Twenty-four books — the exact count of Homer's 'Iliad.' Sing, O Muse, of the tweeter whose words rival the tale of Troy." },
+      { test: s => s.br >= 24 && s.br < 25, text: "Twenty-four books read — matching Homer's 'Odyssey.' Like Odysseus, your journey through the timeline was long, wondrous, and worth every wave." },
+      { test: s => s.bw >= 1 && s.bw < 2 && s.br >= 1 && s.br < 2, text: "One written, one read — like Bashō's perfect haiku: brief, luminous, complete. 'The old pond / a frog jumps in / sound of water.'" },
+      { test: s => s.bw + s.br > 50 && s.bw + s.br <= 100, text: "Over fifty books combined! Enough to fill a shelf that Gandalf himself would pause to browse in Rivendell's library." },
+      { test: s => s.bw + s.br > 100 && s.bw + s.br <= 200, text: "Over a hundred books total — the Benedictine monks' motto was 'Ora et Labora.' Yours is 'Lege et Scribe' — Read and Write. And so you have." },
+      { test: s => s.bw + s.br > 200 && s.bw + s.br <= 500, text: "Over two hundred books — Aby Warburg organized his library by affinity, not alphabet. Your combined works deserve their own beautifully eccentric catalog." },
+      { test: s => s.bw + s.br > 500 && s.bw + s.br <= 1000, text: "Over 500 books combined! Shakespeare's Globe Theatre performed 37 plays. Your combined reading and writing dwarfs the Bard's entire stage." },
+      { test: s => s.bw + s.br > 1000 && s.bw + s.br <= 5000, text: "Over a thousand books combined! The legendary scriptorium at Vivarium produced manuscripts for centuries. You've outpaced an entire medieval institution." },
+      { test: s => s.bw + s.br > 5000 && s.bw + s.br <= 10000, text: "Over 5,000 books combined — a small public library holds about this many titles. You ARE a library. A warm, brilliant, one-person library." },
+      { test: s => s.bw + s.br > 10000, text: "Over TEN THOUSAND books combined! You've surpassed many university libraries. If books were stars, your collection would be its own constellation." },
+      { test: s => s.tw < 100 && s.lk < 100, text: "A quiet presence — like Sappho, whose fragments are few but whose influence echoes across millennia. Quality transcends quantity, always." },
+    ];
+
+    function getStatJokes(booksWritten, booksRead, tweets, likes) {
+      const stats = {
+        bw: booksWritten,
+        br: booksRead,
+        tw: tweets,
+        lk: likes,
+        ratio: booksWritten / (booksRead || 0.01)
+      };
+
+      // Find all matching jokes
+      const matches = STAT_JOKES.filter(j => j.test(stats));
+      if (matches.length === 0) return [];
+
+      // Shuffle matches and pick 1
+      const shuffled = matches.sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, 1);
+    }
+
+    /* ══════════════════════════════════════
+       API ENDPOINTS
+    ══════════════════════════════════════ */
+    const API_ENDPOINTS = [
+      {
+        name: 'FxTwitter',
+        url: (u) => `https://api.fxtwitter.com/${u}`,
+        parse: (data) => {
+          const user = data.user || data;
+          return {
+            name: user.name,
+            username: user.screen_name || user.username,
+            tweets: user.statuses_count ?? user.tweets,
+            likes: user.favourites_count ?? user.likes,
+            avatar: user.avatar_url || user.profile_image_url_https || user.profile_image_url || ''
+          };
+        }
+      },
+      {
+        name: 'VxTwitter',
+        url: (u) => `https://api.vxtwitter.com/${u}`,
+        parse: (data) => {
+          const user = data.user || data;
+          return {
+            name: user.name,
+            username: user.screen_name || user.username,
+            tweets: user.statuses_count ?? user.tweets,
+            likes: user.favourites_count ?? user.likes,
+            avatar: user.avatar_url || user.profile_image_url_https || user.profile_image_url || ''
+          };
+        }
+      }
+    ];
+
+    /* ══════════════════════════════════════
+       HELPERS
+    ══════════════════════════════════════ */
+    function parseNumber(str) {
+      if (!str) return NaN;
+      str = str.trim().replace(/,/g, '');
+      const match = str.match(/^([\d.]+)\s*([KkMm]?)$/);
+      if (!match) return NaN;
+      let num = parseFloat(match[1]);
+      const suffix = match[2].toUpperCase();
+      if (suffix === 'K') num *= 1000;
+      if (suffix === 'M') num *= 1000000;
+      return Math.round(num);
+    }
+
+    function formatNum(n) {
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return n.toLocaleString();
+    }
+
+    function animateNumber(el, target) {
+      const duration = 1500;
+      const start = performance.now();
+      const isDecimal = target < 10;
+      function tick(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = target * eased;
+        el.textContent = isDecimal ? current.toFixed(1) : Math.round(current).toLocaleString();
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function setStatus(type, html) {
+      const el = document.getElementById('status');
+      el.className = 'status ' + type;
+      el.innerHTML = html;
+    }
+
+    function clearStatus() {
+      const el = document.getElementById('status');
+      el.className = 'status';
+      el.innerHTML = '';
+    }
+
+    function sanitize(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function cleanUsername(raw) {
+      return raw.trim().replace(/^@/, '').replace(/^https?:\/\/(x|twitter)\.com\//i, '').replace(/\/.*$/, '').trim();
+    }
+
+    function toggleManual() {
+      document.getElementById('manualSection').classList.toggle('show');
+    }
+
+    /* ══════════════════════════════════════
+       FETCH TWITTER DATA
+    ══════════════════════════════════════ */
+    async function fetchUserData(username) {
+      for (const endpoint of API_ENDPOINTS) {
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 8000);
+          const res = await fetch(endpoint.url(username), {
+            signal: controller.signal,
+            headers: { 'Accept': 'application/json' }
+          });
+          clearTimeout(timeout);
+          if (!res.ok) continue;
+          const data = await res.json();
+          const parsed = endpoint.parse(data);
+          if (parsed && parsed.tweets != null && parsed.likes != null) {
+            parsed.source = endpoint.name;
+            return parsed;
+          }
+        } catch (e) { /* try next */ }
+      }
+      return null;
+    }
+
+    /* ══════════════════════════════════════
+       MAIN FETCH + CALCULATE
+    ══════════════════════════════════════ */
+    async function fetchAndCalculate() {
+      const raw = document.getElementById('username').value;
+      const username = cleanUsername(raw);
+
+      if (!username || !/^[a-zA-Z0-9_]{1,15}$/.test(username)) {
+        setStatus('error', '⚠️ Please enter a valid Twitter/X username.');
+        return;
+      }
+
+      const fetchBtn = document.getElementById('fetchBtn');
+      fetchBtn.disabled = true;
+      document.getElementById('userBanner').innerHTML = '';
+      document.getElementById('results').classList.remove('show');
+      setStatus('loading', '<span class="spinner"></span> Looking up <strong>@' + sanitize(username) + '</strong>…');
+
+      const userData = await fetchUserData(username);
+      fetchBtn.disabled = false;
+
+      if (userData) {
+        setStatus('success', '✓ Found <strong>@' + sanitize(userData.username || username) + '</strong>');
+
+        const avatarHtml = userData.avatar
+          ? '<img src="' + sanitize(userData.avatar) + '" alt="" onerror="this.style.display=\'none\'">'
+          : '';
+        document.getElementById('userBanner').innerHTML = `
+          <div class="user-banner">
+            ${avatarHtml}
+            <div class="user-info">
+              <div class="display-name">${sanitize(userData.name || username)}</div>
+              <div class="screen-name">@${sanitize(userData.username || username)} · ${formatNum(userData.tweets)} posts · ${formatNum(userData.likes)} likes</div>
+            </div>
+          </div>
+        `;
+
+        showResults(userData.tweets, userData.likes, username);
+      } else {
+        setStatus('error',
+          'Couldn\'t fetch data — profile may be private or API is down.<br>' +
+          '<span style="font-size:.8rem; color:var(--text-light);">Visit <a href="https://x.com/' + encodeURIComponent(username) + '" target="_blank" rel="noopener noreferrer" style="color:var(--accent-burgundy)">x.com/@' + sanitize(username) + '</a> and enter numbers manually.</span>'
+        );
+        document.getElementById('manualSection').classList.add('show');
+      }
+    }
+
+    /* ══════════════════════════════════════
+       MANUAL CALCULATE
+    ══════════════════════════════════════ */
+    function calculateManual() {
+      const tweets = parseNumber(document.getElementById('tweets').value);
+      const likes = parseNumber(document.getElementById('likes').value);
+      if (isNaN(tweets) || isNaN(likes) || tweets < 0 || likes < 0) {
+        setStatus('error', '⚠️ Please enter valid numbers for both fields.');
+        return;
+      }
+      clearStatus();
+      document.getElementById('userBanner').innerHTML = '';
+      const username = cleanUsername(document.getElementById('username').value) || 'you';
+      showResults(tweets, likes, username);
+    }
+
+    /* ══════════════════════════════════════
+       BUILD 3D BOOK PILE
+    ══════════════════════════════════════ */
+    /* Classic book cover color palettes */
+    const WRITTEN_BOOK_COLORS = [
+      { bg: '#7b2d3b', accent: '#c9a553' },  // burgundy + gold
+      { bg: '#2c3e6b', accent: '#d4b896' },  // navy + cream
+      { bg: '#5c3d2e', accent: '#c8a96e' },  // brown leather + gold
+      { bg: '#2d5a3d', accent: '#d4c5a0' },  // forest green + ivory
+      { bg: '#6b3a5d', accent: '#dbb88c' },  // plum + gold
+      { bg: '#8b4513', accent: '#f4e4c1' },  // saddle brown + parchment
+      { bg: '#4a3f5c', accent: '#c9b896' },  // deep purple + tan
+      { bg: '#6b4423', accent: '#e8d5b5' },  // mahogany + linen
+    ];
+
+    const READ_BOOK_COLORS = [
+      { bg: '#b8860b', accent: '#faf0d8' },  // dark gold + cream
+      { bg: '#a0522d', accent: '#f5e6d0' },  // sienna + linen
+      { bg: '#cd853f', accent: '#fff8ee' },  // peru + white
+      { bg: '#8b6914', accent: '#f5eedd' },  // dark goldenrod + ivory
+      { bg: '#996633', accent: '#f8f0e3' },  // raw umber + cream
+      { bg: '#c4956a', accent: '#fdf5ec' },  // warm tan + white
+      { bg: '#a67c52', accent: '#faf3e8' },  // bronze + pearl
+      { bg: '#b5651d', accent: '#fcebd5' },  // rust + cream
+    ];
+
+    const BOOK_TITLES = [
+      'tweets vol.', 'musings', 'collected works', 'thoughts',
+      'chronicles', 'reflections', 'dispatches', 'notes',
+      'observations', 'memoirs', 'essays', 'journal',
+      'anthology', 'letters', 'writings', 'typescript'
+    ];
+
+    function buildBookPile(container, count, palette, authorName) {
+      container.innerHTML = '';
+      const displayCount = Math.max(1, Math.min(Math.round(count), 18));
+
+      // Shelf
+      const shelf = document.createElement('div');
+      shelf.className = 'shelf';
+      container.appendChild(shelf);
+
+      for (let i = 0; i < displayCount; i++) {
+        const colors = palette[i % palette.length];
+        const h = 16 + Math.random() * 8;
+        const w = Math.min(120, 100 + (Math.random() - 0.5) * 30);
+        const offset = (Math.random() - 0.5) * 8;
+        const baseTitle = BOOK_TITLES[i % BOOK_TITLES.length] + (i < BOOK_TITLES.length ? '' : ' ' + (Math.floor(i / BOOK_TITLES.length) + 1));
+        const cleanAuthor = authorName ? authorName.replace(/[^a-zA-Z]/g, '') : '';
+
+        const bookEl = document.createElement('div');
+        bookEl.className = 'book-3d';
+        bookEl.style.animationDelay = (i * 0.12 + 0.1) + 's';
+        bookEl.style.marginLeft = offset + 'px';
+
+        // Top face (spine)
+        const top = document.createElement('div');
+        top.className = 'book-top';
+        top.style.cssText = `
+          width: ${w}px;
+          height: ${h}px;
+          background: linear-gradient(180deg,
+            ${adjustColor(colors.bg, 15)} 0%,
+            ${colors.bg} 20%,
+            ${adjustColor(colors.bg, -8)} 80%,
+            ${adjustColor(colors.bg, -20)} 100%
+          );
+        `;
+
+        // Title on spine
+        const titleEl = document.createElement('div');
+        titleEl.className = 'book-title';
+        const titleSpan = document.createElement('span');
+        titleSpan.textContent = baseTitle;
+        titleEl.appendChild(titleSpan);
+        if (cleanAuthor) {
+          const sep = document.createElement('span');
+          sep.className = 'title-sep';
+          sep.textContent = '|';
+          titleEl.appendChild(sep);
+          const authorEl = document.createElement('span');
+          authorEl.className = 'book-author';
+          authorEl.textContent = cleanAuthor;
+          titleEl.appendChild(authorEl);
+        }
+        titleEl.style.color = colors.accent + 'cc';
+        top.appendChild(titleEl);
+
+        // Pages edge
+        const pages = document.createElement('div');
+        pages.className = 'book-pages';
+
+        // Bottom shadow/depth
+        const bottom = document.createElement('div');
+        bottom.className = 'book-bottom';
+        bottom.style.background = adjustColor(colors.bg, -40);
+
+        bookEl.appendChild(top);
+        bookEl.appendChild(pages);
+        bookEl.appendChild(bottom);
+        container.appendChild(bookEl);
+      }
+    }
+
+    function adjustColor(hex, amount) {
+      const num = parseInt(hex.slice(1), 16);
+      const r = Math.min(255, Math.max(0, (num >> 16) + amount));
+      const g = Math.min(255, Math.max(0, ((num >> 8) & 0xFF) + amount));
+      const b = Math.min(255, Math.max(0, (num & 0xFF) + amount));
+      return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
+    }
+
+    /* ══════════════════════════════════════
+       AUTHOR RANK SYSTEM
+    ══════════════════════════════════════ */
+    function getAuthorRank(booksWritten, booksRead) {
+      const total = booksWritten + booksRead;
+      if (total >= 200) return { badge: '👑 LEGENDARY', color: '#b8860b', bg: 'rgba(184,134,11,0.1)', title: 'The Library of Alexandria', desc: 'You could fill an ancient library. A true literary deity of the timeline.' };
+      if (total >= 100) return { badge: '🏆 MASTER', color: '#7b2d3b', bg: 'rgba(123,45,59,0.08)', title: 'Bestselling Author', desc: 'Your output rivals a career author. Stephen King would tip his hat.' };
+      if (total >= 50) return { badge: '🌟 DISTINGUISHED', color: '#2d5a3d', bg: 'rgba(45,90,61,0.08)', title: 'Distinguished Author', desc: 'An impressive bibliography! You could fill an entire bookshelf at any bookstore.' };
+      if (total >= 20) return { badge: '📖 AVID', color: '#2c3e6b', bg: 'rgba(44,62,107,0.08)', title: 'Avid Reader & Writer', desc: 'A solid personal library. More than most people engage with in years.' };
+      if (total >= 10) return { badge: '✏ DEDICATED', color: '#8b4513', bg: 'rgba(139,69,19,0.08)', title: 'Dedicated Bookworm', desc: 'A lovely bedside collection. Your literary journey is well underway.' };
+      if (total >= 3) return { badge: '🌿 GROWING', color: '#996633', bg: 'rgba(153,102,51,0.08)', title: 'A Growing Collection', desc: 'Your first few volumes! Like a cozy reading nook taking shape.' };
+      return { badge: '🌱 BEGINNING', color: '#a3845e', bg: 'rgba(163,132,94,0.08)', title: 'The First Chapter', desc: 'Every great library starts with a single book. Keep writing!' };
+    }
+
+
+
+    /* ══════════════════════════════════════
+       COPY RESULTS
+    ══════════════════════════════════════ */
+    let lastResultText = '';
+    function copyResults() {
+      navigator.clipboard.writeText(lastResultText).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.innerHTML = '📋 Copy Results'; }, 2000);
+      });
+    }
+
+    /* ══════════════════════════════════════
+       CAPTURE SNAPSHOT
+    ══════════════════════════════════════ */
+    function captureSnapshot() {
+      const area = document.getElementById('snapshotArea');
+      return html2canvas(area, {
+        backgroundColor: '#faf6f1',
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+    }
+
+    async function shareWithImage() {
+      const btn = document.getElementById('shareBtn');
+      const origHTML = btn.innerHTML;
+      btn.textContent = 'Generating image...';
+      btn.disabled = true;
+      try {
+        const canvas = await captureSnapshot();
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+        const file = new File([blob], 'tweet-books.png', { type: 'image/png' });
+
+        // Try Web Share API (works on mobile + some desktop)
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            text: lastResultText,
+            files: [file],
+          });
+        } else {
+          // Fallback: download image + open tweet intent
+          downloadBlob(blob, 'tweet-books.png');
+          setTimeout(() => {
+            window.open('https://x.com/intent/tweet?text=' + encodeURIComponent(lastResultText + '\n\n(image attached)'), '_blank', 'noopener,noreferrer');
+          }, 500);
+        }
+      } catch (e) {
+        // If user cancelled share or error, just open tweet intent
+        if (e.name !== 'AbortError') {
+          window.open('https://x.com/intent/tweet?text=' + encodeURIComponent(lastResultText), '_blank', 'noopener,noreferrer');
+        }
+      } finally {
+        btn.innerHTML = origHTML;
+        btn.disabled = false;
+      }
+    }
+
+    async function saveImage() {
+      const btn = document.getElementById('saveImgBtn');
+      btn.textContent = 'Generating...';
+      btn.disabled = true;
+      try {
+        const canvas = await captureSnapshot();
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+        downloadBlob(blob, 'tweet-books.png');
+        btn.textContent = '✓ Saved!';
+        setTimeout(() => { btn.textContent = '📸 Save Image'; }, 2000);
+      } catch (e) {
+        btn.textContent = 'Error';
+        setTimeout(() => { btn.textContent = '📸 Save Image'; }, 2000);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    /* ══════════════════════════════════════
+       SHOW RESULTS
+    ══════════════════════════════════════ */
+    function showResults(tweets, likes, username) {
+      const wordsWritten = tweets * AVG_WORDS_PER_TWEET;
+      const wordsRead = likes * AVG_WORDS_PER_LIKED_TWEET;
+      const booksWritten = wordsWritten / AVG_WORDS_PER_BOOK;
+      const booksRead = wordsRead / AVG_WORDS_PER_BOOK;
+      const pagesWritten = Math.round(wordsWritten / AVG_WORDS_PER_PAGE);
+      const pagesRead = Math.round(wordsRead / AVG_WORDS_PER_PAGE);
+
+      const resultsEl = document.getElementById('results');
+      resultsEl.classList.add('show');
+      setTimeout(() => resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+
+      // Build book piles
+      buildBookPile(document.getElementById('writtenPile'), booksWritten, WRITTEN_BOOK_COLORS, username);
+      buildBookPile(document.getElementById('readPile'), booksRead, READ_BOOK_COLORS);
+
+      animateNumber(document.getElementById('booksWritten'), booksWritten);
+      animateNumber(document.getElementById('booksRead'), booksRead);
+
+      // Author rank
+      const rank = getAuthorRank(booksWritten, booksRead);
+      document.getElementById('authorRank').innerHTML = `
+        <div class="rank-badge" style="background:${rank.bg}; color:${rank.color}; border:1px solid ${rank.color}22;">${rank.badge}</div>
+        <div class="rank-title">${rank.title}</div>
+        <div class="rank-desc">${rank.desc}</div>
+      `;
+
+      // Literary joke (single, bold)
+      const jokes = getStatJokes(booksWritten, booksRead, tweets, likes);
+      const jokeEl = document.getElementById('literaryJoke');
+      const jokeTextEl = document.getElementById('jokeText');
+      if (jokes.length > 0) {
+        jokeTextEl.textContent = jokes[0].text;
+        jokeEl.style.display = '';
+      } else {
+        jokeEl.style.display = 'none';
+      }
+
+      // Breakdown
+      document.getElementById('breakdownContent').innerHTML = `
+        <strong>Writing:</strong> ${formatNum(tweets)} tweets × ~${AVG_WORDS_PER_TWEET} words = ~${formatNum(wordsWritten)} words
+        → <strong>${formatNum(pagesWritten)} pages</strong> → <strong>${booksWritten.toFixed(1)} books</strong><br><br>
+        <strong>Reading:</strong> ${formatNum(likes)} liked tweets × ~${AVG_WORDS_PER_LIKED_TWEET} words = ~${formatNum(wordsRead)} words
+        → <strong>${formatNum(pagesRead)} pages</strong> → <strong>${booksRead.toFixed(1)} books</strong><br><br>
+        Based on an average book of ${AVG_PAGES_PER_BOOK} pages (~${formatNum(AVG_WORDS_PER_BOOK)} words).
+        Average tweet length ~${AVG_WORDS_PER_TWEET} words. Liked tweets tend to be slightly longer (~${AVG_WORDS_PER_LIKED_TWEET} words).
+      `;
+
+      // Share
+      const displayUser = (username && username !== 'you') ? ' (@' + username + ')' : '';
+      const shareText = `📚 My Twitter in books${displayUser}:\n✍ Wrote ${booksWritten.toFixed(1)} books (${formatNum(tweets)} tweets)\n📖 Read ${booksRead.toFixed(1)} books (${formatNum(likes)} likes)\n\nFind yours 👇`;
+      lastResultText = shareText;
+    }
+
+    /* ══════════════════════════════════════
+       KEYBOARD SHORTCUTS
+    ══════════════════════════════════════ */
+    document.getElementById('username').addEventListener('keydown', e => {
+      if (e.key === 'Enter') fetchAndCalculate();
+    });
+    document.querySelectorAll('#manualSection input').forEach(input => {
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') calculateManual();
+      });
+    });
+  </script>
+</body>
+</html>
