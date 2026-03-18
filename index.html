@@ -391,6 +391,7 @@
       justify-content: center;
       width: 100%;
       min-height: 40px;
+      overflow: visible;
     }
 
     .pile-head {
@@ -402,6 +403,9 @@
       min-height: 52px;
       gap: 0;
       width: 100%;
+      position: relative;
+      z-index: 10;
+      background: transparent;
     }
 
     .pile-footer {
@@ -578,7 +582,8 @@
       color: var(--accent-burgundy);
       line-height: 1;
       position: relative;
-      z-index: 5;
+      z-index: 10;
+      text-shadow: 0 0 8px var(--card), 0 0 12px var(--card), 0 2px 6px var(--card);
     }
 
     .pile-count-label {
