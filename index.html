@@ -146,6 +146,7 @@
       border: 1px solid var(--card-border);
       box-shadow: 0 2px 12px var(--shadow), 0 1px 3px var(--shadow);
       position: relative;
+      overflow: visible;
     }
 
     /* ── Input ── */
@@ -382,6 +383,7 @@
       justify-content: flex-end;
       gap: 0;
       min-width: 0;
+      position: relative;
     }
 
     .book-pile-scene {
@@ -392,6 +394,8 @@
       width: 100%;
       min-height: 40px;
       overflow: visible;
+      /* Allow pile to visually grow up behind the number without clipping */
+      z-index: 1;
     }
 
     .pile-head {
@@ -406,6 +410,7 @@
       position: relative;
       z-index: 10;
       background: transparent;
+      pointer-events: none;
     }
 
     .pile-footer {
@@ -583,7 +588,13 @@
       line-height: 1;
       position: relative;
       z-index: 10;
-      text-shadow: 0 0 8px var(--card), 0 0 12px var(--card), 0 2px 6px var(--card);
+      pointer-events: none;
+      /* Soft halo so number stays legible over any book colour */
+      text-shadow:
+        0 0 10px var(--card),
+        0 0 18px var(--card),
+        0 0 26px var(--card),
+        0 1px 4px var(--card);
     }
 
     .pile-count-label {
