@@ -1759,11 +1759,37 @@
     ══════════════════════════════════════ */
     function getAuthorRank(booksWritten, booksRead) {
       const total = booksWritten + booksRead;
-      // Determine dominant activity: reader if read > 4× written and read is meaningful
-      const isReaderDominant = booksRead > 1 && booksRead > booksWritten * 4;
+      // isReaderDominant: only if they barely tweet (< 2 books written) AND likes dominate heavily (10×)
+      // This keeps active tweeters in "mixed" — even a little writing is honourable
+      const isReaderDominant = booksWritten < 2 && booksRead > booksWritten * 10;
+      // isWriterDominant: writes at least 4× more than reads
       const isWriterDominant = booksWritten > 1 && booksWritten > booksRead * 4;
-      // isMixed = neither extreme
 
+      if (total >= 10000) {
+        if (isReaderDominant) return { badge: '🌌 OMNISCIENT', color: '#4a0080', bg: 'rgba(74,0,128,0.1)', title: 'The Infinite Reader', desc: 'Ten thousand books absorbed. There is no word left on the internet you haven\'t touched. You are the algorithm.' };
+        if (isWriterDominant) return { badge: '🌌 OMNISCIENT', color: '#4a0080', bg: 'rgba(74,0,128,0.1)', title: 'The Infinite Scribe', desc: 'Ten thousand books worth of words poured into the world. Homer, Shakespeare, and Tolstoy combined wrote less.' };
+        return { badge: '🌌 OMNISCIENT', color: '#4a0080', bg: 'rgba(74,0,128,0.1)', title: 'The Omniscient', desc: 'Ten thousand books written and read. You don\'t use the internet — you are the internet.' };
+      }
+      if (total >= 5000) {
+        if (isReaderDominant) return { badge: '⚡ TRANSCENDENT', color: '#1a3a6b', bg: 'rgba(26,58,107,0.1)', title: 'The Archive', desc: 'Five thousand books worth of reading. The Vatican Library holds ~180,000 manuscripts — you\'re well on your way.' };
+        if (isWriterDominant) return { badge: '⚡ TRANSCENDENT', color: '#1a3a6b', bg: 'rgba(26,58,107,0.1)', title: 'The Unstoppable Pen', desc: 'Asimov wrote ~500 books in his lifetime. You\'ve lapped him — on Twitter alone.' };
+        return { badge: '⚡ TRANSCENDENT', color: '#1a3a6b', bg: 'rgba(26,58,107,0.1)', title: 'The Transcendent', desc: 'Five thousand books worth of words exchanged with the world. You have transcended mere tweeting.' };
+      }
+      if (total >= 2500) {
+        if (isReaderDominant) return { badge: '🔱 MYTHIC', color: '#7b2d3b', bg: 'rgba(123,45,59,0.12)', title: 'The Grand Curator', desc: 'Your reading list rivals the personal libraries of great scholars. Umberto Eco had 30,000 physical books — you\'re building your own.' };
+        if (isWriterDominant) return { badge: '🔱 MYTHIC', color: '#7b2d3b', bg: 'rgba(123,45,59,0.12)', title: 'The Myth-Maker', desc: 'Twenty-five hundred books of output. Lope de Vega claimed 1,500 plays. You\'ve surpassed the myth.' };
+        return { badge: '🔱 MYTHIC', color: '#7b2d3b', bg: 'rgba(123,45,59,0.12)', title: 'The Mythic Voice', desc: 'A body of work that belongs in legend. Bards will sing of your timeline for generations.' };
+      }
+      if (total >= 1000) {
+        if (isReaderDominant) return { badge: '💎 IMMORTAL', color: '#2d5a3d', bg: 'rgba(45,90,61,0.1)', title: 'The Eternal Reader', desc: 'A thousand books absorbed through your likes. The Bodleian Library started with just 2,000 volumes in 1602.' };
+        if (isWriterDominant) return { badge: '💎 IMMORTAL', color: '#2d5a3d', bg: 'rgba(45,90,61,0.1)', title: 'The Immortal Author', desc: 'A thousand books of writing. Dickens, Austen, and Woolf combined published fewer words in their lifetimes.' };
+        return { badge: '💎 IMMORTAL', color: '#2d5a3d', bg: 'rgba(45,90,61,0.1)', title: 'The Immortal', desc: 'A thousand books written and read. Your words will outlast you — they already have a life of their own.' };
+      }
+      if (total >= 500) {
+        if (isReaderDominant) return { badge: '🚀 EPIC', color: '#b8860b', bg: 'rgba(184,134,11,0.12)', title: 'The Voracious', desc: 'Five hundred books devoured through your likes. Bill Gates reads ~50 books a year — you\'ve done a decade of his reading.' };
+        if (isWriterDominant) return { badge: '🚀 EPIC', color: '#b8860b', bg: 'rgba(184,134,11,0.12)', title: 'The Epic Author', desc: 'Five hundred books of writing output. The average person publishes zero books in their lifetime. You\'ve written five hundred.' };
+        return { badge: '🚀 EPIC', color: '#b8860b', bg: 'rgba(184,134,11,0.12)', title: 'The Epic Mind', desc: 'Five hundred books worth of words sent and received. An epic in the truest sense of the word.' };
+      }
       if (total >= 200) {
         if (isReaderDominant) return { badge: '👑 LEGENDARY', color: '#b8860b', bg: 'rgba(184,134,11,0.1)', title: 'The Grand Librarian', desc: 'You\'ve absorbed the equivalent of an entire library. Alexandria itself would hire you as chief curator.' };
         if (isWriterDominant) return { badge: '👑 LEGENDARY', color: '#b8860b', bg: 'rgba(184,134,11,0.1)', title: 'The Library of Alexandria', desc: 'You could fill an ancient library. A true literary deity of the timeline.' };
