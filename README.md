@@ -1,3 +1,5 @@
+[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/tsurdan)
+
 # 📚 Tweet Books
 
 **How many books are your tweets worth?**
