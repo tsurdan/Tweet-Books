@@ -337,9 +337,9 @@
     .book-piles-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      margin-bottom: .5rem;
-      padding: 1rem 0;
+      gap: 1.5rem;
+      margin-bottom: 0;
+      padding: .5rem 0;
     }
 
     .book-pile-wrapper {
@@ -351,11 +351,11 @@
 
     .pile-label {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: 1rem;
+      font-size: .9rem;
       font-weight: 700;
       color: var(--text);
       order: 2;
-      margin-top: .75rem;
+      margin-top: .4rem;
       letter-spacing: .03em;
     }
 
@@ -515,9 +515,9 @@
     }
 
     .pile-count {
-      font-size: 3rem;
+      font-size: 2.5rem;
       font-weight: 800;
-      margin-top: 1rem;
+      margin-top: .5rem;
       color: var(--accent-burgundy);
       line-height: 1;
     }
@@ -656,27 +656,27 @@
     /* ── Result banner (inside piles card for screenshot) ── */
     .result-banner {
       text-align: center;
-      margin-bottom: .75rem;
-      padding-bottom: .75rem;
+      margin-bottom: .5rem;
+      padding-bottom: .5rem;
       border-bottom: 1px solid var(--card-border);
     }
     .result-banner img {
-      width: 48px;
-      height: 48px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       border: 2px solid var(--accent-warm);
-      margin-bottom: .4rem;
+      margin-bottom: .25rem;
     }
     .result-banner .result-name {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       font-weight: 700;
       color: var(--text);
     }
     .result-banner .result-handle {
       color: var(--text-muted);
-      font-size: .8rem;
-      margin-top: .1rem;
+      font-size: .75rem;
+      margin-top: .05rem;
     }
 
     /* ── Footer ── */
@@ -693,8 +693,7 @@
     /* Literary joke — open book design */
     .literary-joke {
       position: relative;
-      margin: 1rem auto 1.5rem;
-      max-width: 520px;
+      margin: .75rem 0 0;
       animation: jokeAppear .8s ease .3s backwards;
     }
 
@@ -704,12 +703,11 @@
         linear-gradient(to right, rgba(0,0,0,0.02) 0%, transparent 1.5%, transparent 98.5%, rgba(0,0,0,0.02) 100%),
         linear-gradient(180deg, #fdf8f0 0%, #f5edd8 100%);
       border: 1px solid #d4c5a0;
-      border-radius: 3px 12px 12px 3px;
-      padding: 2.5rem 2.5rem 2rem;
+      border-radius: 3px 8px 8px 3px;
+      padding: 1.25rem 1.5rem 1rem;
       box-shadow:
-        3px 3px 12px rgba(120,90,40,0.15),
-        0 0 0 1px rgba(180,160,120,0.2),
-        inset 0 0 30px rgba(200,180,140,0.08);
+        2px 2px 8px rgba(120,90,40,0.1),
+        0 0 0 1px rgba(180,160,120,0.15);
       text-align: center;
       font-family: 'Playfair Display', Georgia, serif;
       color: var(--accent-burgundy);
@@ -763,10 +761,10 @@
       position: relative;
       z-index: 1;
       font-weight: 700;
-      font-size: 1.12rem;
-      line-height: 1.65;
+      font-size: 1rem;
+      line-height: 1.55;
       color: var(--accent-burgundy);
-      padding: 0 0.5rem;
+      padding: 0 0.25rem;
     }
 
     .joke-text::before {
@@ -820,25 +818,29 @@
 
     /* ── Responsive ── */
     @media (max-width: 600px) {
-      .container { padding: 1.25rem 1rem; }
+      .container { padding: 1rem .75rem; }
       h1 { font-size: 1.8rem; }
       .subtitle { font-size: .9rem; }
       .logo { font-size: 2.4rem; }
       header { margin-bottom: 1.5rem; padding-top: 1rem; }
-      .card { padding: 1.25rem 1rem; margin-bottom: 1rem; }
-      .book-piles-container { gap: .75rem; padding: .5rem 0; }
+      .card { padding: 1rem .75rem; margin-bottom: .75rem; }
+      .book-piles-container { gap: .5rem; padding: .25rem 0; }
       .shelf { width: 110px; }
       .book-3d .book-title { font-size: .4rem; }
-      .pile-count { font-size: 2.2rem; }
-      .pile-label { font-size: .9rem; }
+      .pile-count { font-size: 2rem; margin-top: .35rem; }
+      .pile-label { font-size: .85rem; margin-top: .3rem; }
+      .pile-count-label { font-size: .7rem; }
       .username-row { flex-direction: column; }
       .btn-small { width: 100%; padding: 1rem; }
       .btn { padding: 1rem; font-size: 1.05rem; }
-      .literary-joke { max-width: 100%; }
-      .book-page { padding: 1.75rem 1.5rem 1.5rem; }
-      .joke-text { font-size: 0.97rem; }
-      .page-corner { display: none; }
-      .author-rank { padding: 1.25rem; }
+      .literary-joke { margin-top: .5rem; }
+      .book-page { padding: 1rem 1rem .75rem; }
+      .joke-text { font-size: .9rem; line-height: 1.45; }
+      .result-banner { margin-bottom: .4rem; padding-bottom: .4rem; }
+      .result-banner img { width: 36px; height: 36px; }
+      .result-banner .result-name { font-size: .95rem; }
+      .result-banner .result-handle { font-size: .7rem; }
+      .author-rank { padding: 1rem; margin-bottom: .75rem; }
       .author-rank .rank-title { font-size: 1.2rem; }
       .author-rank .rank-desc { font-size: .82rem; }
       .breakdown summary { font-size: .85rem; }
@@ -854,11 +856,15 @@
 
     @media (max-width: 380px) {
       h1 { font-size: 1.5rem; }
-      .container { padding: 1rem .75rem; }
-      .book-piles-container { gap: .5rem; }
+      .container { padding: .75rem .5rem; }
+      .book-piles-container { gap: .35rem; }
       .shelf { width: 90px; }
-      .pile-count { font-size: 1.8rem; }
-      .card { padding: 1rem .75rem; }
+      .pile-count { font-size: 1.7rem; }
+      .pile-label { font-size: .8rem; }
+      .card { padding: .75rem .5rem; }
+      .book-page { padding: .75rem .75rem .5rem; }
+      .joke-text { font-size: .82rem; }
+      .result-banner img { width: 32px; height: 32px; }
     }
 
     /* Touch-friendly targets */
@@ -936,15 +942,12 @@
             <div class="pile-count-label">books</div>
           </div>
         </div>
-      </div>
-
-      <!-- Literary joke (the highlight) -->
-      <div class="literary-joke" id="literaryJoke">
-        <div class="book-page">
-          <div class="page-corner top-right"><svg viewBox="0 0 20 20"><path d="M2 2 C8 2, 14 4, 18 10 M2 6 C6 6, 10 8, 14 14" stroke="currentColor" fill="none" stroke-width="1" stroke-linecap="round" opacity="0.7"/></svg></div>
-          <div class="page-corner bottom-left"><svg viewBox="0 0 20 20"><path d="M2 2 C8 2, 14 4, 18 10 M2 6 C6 6, 10 8, 14 14" stroke="currentColor" fill="none" stroke-width="1" stroke-linecap="round" opacity="0.7"/></svg></div>
-          <div class="joke-text" id="jokeText"></div>
-          <div class="page-divider">&#9830;</div>
+        <!-- Literary joke (inside card for screenshot) -->
+        <div class="literary-joke" id="literaryJoke">
+          <div class="book-page">
+            <div class="joke-text" id="jokeText"></div>
+            <div class="page-divider">&#9830;</div>
+          </div>
         </div>
       </div>
 
