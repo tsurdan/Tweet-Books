@@ -1382,19 +1382,20 @@
       const runId = ++jokeTypingRunId;
       el.innerHTML = '';
 
-      // Split into words, preserving spaces between them
+      // Split into words and create a span per word + a plain text space node after it
       const words = text.split(' ');
       const spans = words.map((word, idx) => {
         const span = document.createElement('span');
         span.className = 'joke-word';
         span.textContent = word;
-        if (idx < words.length - 1) span.textContent += '\u00a0'; // non-breaking space
         el.appendChild(span);
+        // Regular space between words so the browser can wrap normally
+        if (idx < words.length - 1) el.appendChild(document.createTextNode(' '));
         return span;
       });
 
       const beginAt = Math.max(0, startDelayMs | 0);
-      const gapMs = 62; // ms between each word appearing
+      const gapMs = 62;
 
       setTimeout(() => {
         if (runId !== jokeTypingRunId) return;
@@ -1758,12 +1759,41 @@
     ══════════════════════════════════════ */
     function getAuthorRank(booksWritten, booksRead) {
       const total = booksWritten + booksRead;
-      if (total >= 200) return { badge: '👑 LEGENDARY', color: '#b8860b', bg: 'rgba(184,134,11,0.1)', title: 'The Library of Alexandria', desc: 'You could fill an ancient library. A true literary deity of the timeline.' };
-      if (total >= 100) return { badge: '🏆 MASTER', color: '#7b2d3b', bg: 'rgba(123,45,59,0.08)', title: 'Bestselling Author', desc: 'Your output rivals a career author. Stephen King would tip his hat.' };
-      if (total >= 50) return { badge: '🌟 DISTINGUISHED', color: '#2d5a3d', bg: 'rgba(45,90,61,0.08)', title: 'Distinguished Author', desc: 'An impressive bibliography! You could fill an entire bookshelf at any bookstore.' };
-      if (total >= 20) return { badge: '📖 AVID', color: '#2c3e6b', bg: 'rgba(44,62,107,0.08)', title: 'Avid Reader & Writer', desc: 'A solid personal library. More than most people engage with in years.' };
-      if (total >= 10) return { badge: '✏ DEDICATED', color: '#8b4513', bg: 'rgba(139,69,19,0.08)', title: 'Dedicated Bookworm', desc: 'A lovely bedside collection. Your literary journey is well underway.' };
-      if (total >= 3) return { badge: '🌿 GROWING', color: '#996633', bg: 'rgba(153,102,51,0.08)', title: 'A Growing Collection', desc: 'Your first few volumes! Like a cozy reading nook taking shape.' };
+      // Determine dominant activity: reader if read > 4× written and read is meaningful
+      const isReaderDominant = booksRead > 1 && booksRead > booksWritten * 4;
+      const isWriterDominant = booksWritten > 1 && booksWritten > booksRead * 4;
+      // isMixed = neither extreme
+
+      if (total >= 200) {
+        if (isReaderDominant) return { badge: '👑 LEGENDARY', color: '#b8860b', bg: 'rgba(184,134,11,0.1)', title: 'The Grand Librarian', desc: 'You\'ve absorbed the equivalent of an entire library. Alexandria itself would hire you as chief curator.' };
+        if (isWriterDominant) return { badge: '👑 LEGENDARY', color: '#b8860b', bg: 'rgba(184,134,11,0.1)', title: 'The Library of Alexandria', desc: 'You could fill an ancient library. A true literary deity of the timeline.' };
+        return { badge: '👑 LEGENDARY', color: '#b8860b', bg: 'rgba(184,134,11,0.1)', title: 'The Literary Sage', desc: 'Reader and writer in equal measure — you\'ve built an entire world of words on this timeline.' };
+      }
+      if (total >= 100) {
+        if (isReaderDominant) return { badge: '🏆 MASTER', color: '#7b2d3b', bg: 'rgba(123,45,59,0.08)', title: 'Master Reader', desc: 'You digest books at a professional pace. The most voracious critics of the New York Review would nod in respect.' };
+        if (isWriterDominant) return { badge: '🏆 MASTER', color: '#7b2d3b', bg: 'rgba(123,45,59,0.08)', title: 'Bestselling Author', desc: 'Your output rivals a career author. Stephen King would tip his hat.' };
+        return { badge: '🏆 MASTER', color: '#7b2d3b', bg: 'rgba(123,45,59,0.08)', title: 'Master of the Craft', desc: 'You write, you read, you absorb. A true literary double-threat.' };
+      }
+      if (total >= 50) {
+        if (isReaderDominant) return { badge: '🌟 DISTINGUISHED', color: '#2d5a3d', bg: 'rgba(45,90,61,0.08)', title: 'Distinguished Reader', desc: 'A formidable reading list. You could fill an entire shelf with the books your likes represent.' };
+        if (isWriterDominant) return { badge: '🌟 DISTINGUISHED', color: '#2d5a3d', bg: 'rgba(45,90,61,0.08)', title: 'Distinguished Author', desc: 'An impressive bibliography! You could fill an entire bookshelf at any bookstore.' };
+        return { badge: '🌟 DISTINGUISHED', color: '#2d5a3d', bg: 'rgba(45,90,61,0.08)', title: 'Distinguished Intellect', desc: 'A well-rounded literary presence — your timeline reads like a good book club recommendation list.' };
+      }
+      if (total >= 20) {
+        if (isReaderDominant) return { badge: '📖 AVID', color: '#2c3e6b', bg: 'rgba(44,62,107,0.08)', title: 'Avid Reader', desc: 'You absorb more words through likes than most people read in a year. The internet is your library.' };
+        if (isWriterDominant) return { badge: '📖 AVID', color: '#2c3e6b', bg: 'rgba(44,62,107,0.08)', title: 'Avid Writer', desc: 'A solid body of work. More words written than most people manage in years.' };
+        return { badge: '📖 AVID', color: '#2c3e6b', bg: 'rgba(44,62,107,0.08)', title: 'Avid Reader & Writer', desc: 'A solid personal library. More than most people engage with in years.' };
+      }
+      if (total >= 10) {
+        if (isReaderDominant) return { badge: '✏ DEDICATED', color: '#8b4513', bg: 'rgba(139,69,19,0.08)', title: 'Dedicated Reader', desc: 'A growing reading list. Your likes speak of a curious, well-read mind.' };
+        if (isWriterDominant) return { badge: '✏ DEDICATED', color: '#8b4513', bg: 'rgba(139,69,19,0.08)', title: 'Dedicated Writer', desc: 'You tweet like you\'re on deadline. A lovely stack of pages already to your name.' };
+        return { badge: '✏ DEDICATED', color: '#8b4513', bg: 'rgba(139,69,19,0.08)', title: 'Dedicated Bookworm', desc: 'A lovely bedside collection. Your literary journey is well underway.' };
+      }
+      if (total >= 3) {
+        if (isReaderDominant) return { badge: '🌿 GROWING', color: '#996633', bg: 'rgba(153,102,51,0.08)', title: 'Curious Reader', desc: 'A small but meaningful reading list. Every library starts with a handful of beloved choices.' };
+        return { badge: '🌿 GROWING', color: '#996633', bg: 'rgba(153,102,51,0.08)', title: 'A Growing Collection', desc: 'Your first few volumes! Like a cozy reading nook taking shape.' };
+      }
+      if (isReaderDominant) return { badge: '🌱 BEGINNING', color: '#a3845e', bg: 'rgba(163,132,94,0.08)', title: 'The First Page', desc: 'A few likes in, and already a story is forming. Every great reader starts somewhere.' };
       return { badge: '🌱 BEGINNING', color: '#a3845e', bg: 'rgba(163,132,94,0.08)', title: 'The First Chapter', desc: 'Every great library starts with a single book. Keep writing!' };
     }
 
