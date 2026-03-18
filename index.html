@@ -155,15 +155,16 @@
 
     input[type="text"] {
       width: 100%;
-      padding: .85rem 1.1rem;
-      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      border-radius: 12px;
       border: 1.5px solid var(--card-border);
       background: var(--bg);
       color: var(--text);
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-family: inherit;
       outline: none;
       transition: all .25s;
+      min-height: 52px;
     }
 
     input[type="text"]:focus {
@@ -203,12 +204,12 @@
     .btn {
       display: block;
       width: 100%;
-      padding: .9rem;
+      padding: 1rem;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       background: linear-gradient(135deg, var(--accent-burgundy), var(--accent-gold));
       color: #fff;
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       font-weight: 600;
       font-family: 'Playfair Display', Georgia, serif;
       cursor: pointer;
@@ -216,6 +217,7 @@
       margin-top: 1.5rem;
       letter-spacing: .02em;
       box-shadow: 0 3px 12px rgba(123,45,59,0.2);
+      min-height: 52px;
     }
 
     .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(123,45,59,0.25); }
@@ -225,10 +227,11 @@
     .btn-small {
       margin-top: 0;
       width: auto;
-      padding: .85rem 1.8rem;
-      font-size: .9rem;
+      padding: 1rem 2rem;
+      font-size: 1rem;
       white-space: nowrap;
       flex-shrink: 0;
+      min-height: 52px;
     }
 
     /* ── Status ── */
@@ -650,6 +653,24 @@
     }
     .share-btn:hover { transform: translateY(-1px); }
 
+    /* ── Result banner (inside results for screenshot) ── */
+    .result-banner {
+      text-align: center;
+      margin-bottom: 1rem;
+      padding: .5rem 0;
+    }
+    .result-banner .result-username {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .result-banner .result-handle {
+      color: var(--text-muted);
+      font-size: .85rem;
+      margin-top: .15rem;
+    }
+
     /* ── Footer ── */
     footer {
       text-align: center;
@@ -804,7 +825,7 @@
       .pile-label { font-size: .9rem; }
       .username-row { flex-direction: column; }
       .btn-small { width: 100%; }
-      .btn { padding: .85rem; font-size: 1rem; }
+      .btn { padding: 1rem; font-size: 1.05rem; }
       .literary-joke { max-width: 100%; }
       .book-page { padding: 1.75rem 1.5rem 1.5rem; }
       .joke-text { font-size: 0.97rem; }
@@ -890,6 +911,9 @@
 
     <!-- Results -->
     <div id="results">
+      <!-- Result user banner -->
+      <div id="resultBanner"></div>
+
       <!-- Book piles -->
       <div class="card" id="pilesCard">
         <div class="book-piles-container">
@@ -917,7 +941,6 @@
           <div class="page-divider">&#9830;</div>
         </div>
       </div>
-      </div><!-- end literary-joke -->
 
       <!-- Author rank -->
       <div class="author-rank" id="authorRank"></div>
@@ -1537,6 +1560,14 @@
       const resultsEl = document.getElementById('results');
       resultsEl.classList.add('show');
       setTimeout(() => resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+
+      // Result banner (username in results for screenshot)
+      const bannerEl = document.getElementById('resultBanner');
+      if (username && username !== 'you') {
+        bannerEl.innerHTML = `<div class="result-banner"><div class="result-username">@${sanitize(username)}'s Library</div></div>`;
+      } else {
+        bannerEl.innerHTML = '';
+      }
 
       // Build book piles
       buildBookPile(document.getElementById('writtenPile'), booksWritten, WRITTEN_BOOK_COLORS, username);
