@@ -614,11 +614,6 @@
       line-height: 1.8;
     }
 
-    /* ── Snapshot area ── */
-    #snapshotArea {
-      padding: 0.25rem 0;
-    }
-
     /* ── Share ── */
     .share-section {
       display: flex;
@@ -654,7 +649,6 @@
       cursor: pointer;
     }
     .share-btn:hover { transform: translateY(-1px); }
-    .share-btn:disabled { opacity: 0.6; cursor: wait; transform: none; }
 
     /* ── Footer ── */
     footer {
@@ -896,8 +890,6 @@
 
     <!-- Results -->
     <div id="results">
-      <!-- Snapshot area (book piles + joke) -->
-      <div id="snapshotArea">
       <!-- Book piles -->
       <div class="card" id="pilesCard">
         <div class="book-piles-container">
@@ -925,7 +917,7 @@
           <div class="page-divider">&#9830;</div>
         </div>
       </div>
-      </div><!-- end snapshotArea -->
+      </div><!-- end literary-joke -->
 
       <!-- Author rank -->
       <div class="author-rank" id="authorRank"></div>
@@ -939,13 +931,10 @@
       <!-- Share -->
       <div class="card">
         <div class="share-section">
-          <button class="share-btn twitter" id="shareBtn" onclick="shareWithImage()">
+          <a class="share-btn twitter" id="shareBtn" target="_blank" rel="noopener noreferrer">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             Share on X
-          </button>
-          <button class="share-btn copy" id="saveImgBtn" onclick="saveImage()">
-            📸 Save Image
-          </button>
+          </a>
           <button class="share-btn copy" id="copyBtn" onclick="copyResults()">
             📋 Copy Results
           </button>
@@ -959,7 +948,6 @@
     </footer>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script>
     /* ══════════════════════════════════════
        BACKGROUND PARTICLES
@@ -1536,82 +1524,6 @@
     }
 
     /* ══════════════════════════════════════
-       CAPTURE SNAPSHOT
-    ══════════════════════════════════════ */
-    function captureSnapshot() {
-      const area = document.getElementById('snapshotArea');
-      return html2canvas(area, {
-        backgroundColor: '#faf6f1',
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
-    }
-
-    async function shareWithImage() {
-      const btn = document.getElementById('shareBtn');
-      const origHTML = btn.innerHTML;
-      btn.textContent = 'Generating image...';
-      btn.disabled = true;
-      try {
-        const canvas = await captureSnapshot();
-        const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
-        const file = new File([blob], 'tweet-books.png', { type: 'image/png' });
-
-        // Try Web Share API (works on mobile + some desktop)
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            text: lastResultText,
-            files: [file],
-          });
-        } else {
-          // Fallback: download image + open tweet intent
-          downloadBlob(blob, 'tweet-books.png');
-          setTimeout(() => {
-            window.open('https://x.com/intent/tweet?text=' + encodeURIComponent(lastResultText + '\n\n(image attached)'), '_blank', 'noopener,noreferrer');
-          }, 500);
-        }
-      } catch (e) {
-        // If user cancelled share or error, just open tweet intent
-        if (e.name !== 'AbortError') {
-          window.open('https://x.com/intent/tweet?text=' + encodeURIComponent(lastResultText), '_blank', 'noopener,noreferrer');
-        }
-      } finally {
-        btn.innerHTML = origHTML;
-        btn.disabled = false;
-      }
-    }
-
-    async function saveImage() {
-      const btn = document.getElementById('saveImgBtn');
-      btn.textContent = 'Generating...';
-      btn.disabled = true;
-      try {
-        const canvas = await captureSnapshot();
-        const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
-        downloadBlob(blob, 'tweet-books.png');
-        btn.textContent = '✓ Saved!';
-        setTimeout(() => { btn.textContent = '📸 Save Image'; }, 2000);
-      } catch (e) {
-        btn.textContent = 'Error';
-        setTimeout(() => { btn.textContent = '📸 Save Image'; }, 2000);
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    function downloadBlob(blob, filename) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    /* ══════════════════════════════════════
        SHOW RESULTS
     ══════════════════════════════════════ */
     function showResults(tweets, likes, username) {
@@ -1666,6 +1578,7 @@
       const displayUser = (username && username !== 'you') ? ' (@' + username + ')' : '';
       const shareText = `📚 My Twitter in books${displayUser}:\n✍ Wrote ${booksWritten.toFixed(1)} books (${formatNum(tweets)} tweets)\n📖 Read ${booksRead.toFixed(1)} books (${formatNum(likes)} likes)\n\nFind yours 👇`;
       lastResultText = shareText;
+      document.getElementById('shareBtn').href = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
     }
 
     /* ══════════════════════════════════════
