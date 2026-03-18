@@ -9,12 +9,15 @@
   <meta property="og:title" content="Tweet Books — How Many Books Are Your Tweets Worth?">
   <meta property="og:description" content="Turn your tweets and likes into books written and books read.">
   <meta property="og:url" content="https://tsurdan.github.io/Tweet-Books/">
-  <meta property="og:image" content="https://image.thum.io/get/width/1200/https://tsurdan.github.io/Tweet-Books/">
-  <meta property="og:image:alt" content="Preview of Tweet Books showing book piles for written and read books.">
+  <meta property="og:image" content="https://tsurdan.github.io/Tweet-Books/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Tweet Books — see how many books your tweets are worth.">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@_Tsur_">
   <meta name="twitter:title" content="Tweet Books — How Many Books Are Your Tweets Worth?">
   <meta name="twitter:description" content="Turn your tweets and likes into books written and books read.">
-  <meta name="twitter:image" content="https://image.thum.io/get/width/1200/https://tsurdan.github.io/Tweet-Books/">
+  <meta name="twitter:image" content="https://tsurdan.github.io/Tweet-Books/og-image.png">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
@@ -828,25 +831,13 @@
       padding: 0 0.25rem;
     }
 
-    .joke-text.typing {
-      white-space: pre-wrap;
+    .joke-text .joke-word {
+      display: inline;
+      opacity: 0;
+      transition: opacity .35s ease;
     }
-
-    .joke-text.typing::marker {
-      content: '';
-    }
-
-    .joke-text.typing-caret::after {
-      content: '|';
-      display: inline-block;
-      margin-left: 3px;
-      color: rgba(123,45,59,0.8);
-      animation: caretBlink 1s steps(1, end) infinite;
-    }
-
-    @keyframes caretBlink {
-      0%, 45% { opacity: 1; }
-      46%, 100% { opacity: 0; }
+    .joke-text .joke-word.visible {
+      opacity: 1;
     }
 
     .joke-text::before {
@@ -1379,27 +1370,30 @@
     let jokeTypingRunId = 0;
     function typeJokeText(el, text, startDelayMs) {
       const runId = ++jokeTypingRunId;
-      el.textContent = '';
-      el.classList.add('typing', 'typing-caret');
+      el.innerHTML = '';
 
-      const stepMs = 18;
+      // Split into words, preserving spaces between them
+      const words = text.split(' ');
+      const spans = words.map((word, idx) => {
+        const span = document.createElement('span');
+        span.className = 'joke-word';
+        span.textContent = word;
+        if (idx < words.length - 1) span.textContent += '\u00a0'; // non-breaking space
+        el.appendChild(span);
+        return span;
+      });
+
       const beginAt = Math.max(0, startDelayMs | 0);
+      const gapMs = 62; // ms between each word appearing
 
       setTimeout(() => {
         if (runId !== jokeTypingRunId) return;
-        let i = 0;
-        const timer = setInterval(() => {
-          if (runId !== jokeTypingRunId) {
-            clearInterval(timer);
-            return;
-          }
-          i += 1;
-          el.textContent = text.slice(0, i);
-          if (i >= text.length) {
-            clearInterval(timer);
-            el.classList.remove('typing-caret');
-          }
-        }, stepMs);
+        spans.forEach((span, idx) => {
+          setTimeout(() => {
+            if (runId !== jokeTypingRunId) return;
+            span.classList.add('visible');
+          }, idx * gapMs);
+        });
       }, beginAt);
     }
 
@@ -1825,7 +1819,7 @@
       const jokeEl = document.getElementById('literaryJoke');
       const jokeTextEl = document.getElementById('jokeText');
       if (jokes.length > 0) {
-        typeJokeText(jokeTextEl, jokes[0].text, pileAnimDoneMs + 120);
+        typeJokeText(jokeTextEl, jokes[0].text, Math.round(pileAnimDoneMs * 0.65));
         jokeEl.style.display = '';
       } else {
         jokeEl.style.display = 'none';
