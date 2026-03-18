@@ -369,28 +369,95 @@
       order: 1;
     }
 
-    /* Multi-pile row for large book counts */
-    .multi-pile-row {
+    /* Bookcase for larger counts */
+    .bookcase {
       display: flex;
-      gap: 6px;
-      justify-content: center;
-      align-items: flex-end;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 2px;
       order: 1;
     }
 
-    .sub-pile {
-      perspective: 600px;
+    .bookcase-row {
       display: flex;
-      flex-direction: column-reverse;
-      align-items: center;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 1px;
       position: relative;
+      padding-bottom: 7px;
     }
 
-    .sub-pile .shelf {
-      width: 50px;
-      height: 8px;
-      box-shadow: 0 2px 4px rgba(61,46,31,0.15);
+    .bookcase-row::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: -5px;
+      right: -5px;
+      height: 7px;
+      background: linear-gradient(180deg, #c4a882 0%, #a3845e 40%, #8b6f47 100%);
+      border-radius: 1px 1px 2px 2px;
+      box-shadow: 0 2px 4px rgba(61,46,31,0.15), 0 1px 2px rgba(61,46,31,0.08);
+    }
+
+    .bookcase-row::before {
+      content: '';
+      position: absolute;
+      bottom: 1px;
+      left: -4px;
+      right: -4px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      z-index: 1;
+      border-radius: 1px;
+    }
+
+    .book-upright {
+      position: relative;
+      border-radius: 1px 2px 2px 1px;
+      animation: bookSlideIn .4s ease-out backwards;
+      z-index: 1;
+      box-shadow:
+        1px 0 0 rgba(0,0,0,0.08) inset,
+        -1px 0 0 rgba(255,255,255,0.1) inset,
+        0 -1px 0 rgba(255,255,255,0.1) inset;
+    }
+
+    /* Pages visible at top of upright book */
+    .book-upright::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 2px;
+      right: 2px;
+      height: 3px;
+      background: linear-gradient(180deg, #e8e0d4, #f5efe6);
+      border-radius: 1px 1px 0 0;
+    }
+
+    /* Spine detail line */
+    .book-upright::before {
+      content: '';
+      position: absolute;
+      top: 15%;
+      bottom: 15%;
+      left: 50%;
+      width: 1px;
+      background: rgba(255,255,255,0.15);
+      transform: translateX(-50%);
+    }
+
+    @keyframes bookSlideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Overflow label for very large counts */
+    .bookcase-overflow {
+      text-align: center;
+      font-size: .65rem;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-top: 2px;
+      opacity: .7;
     }
 
     .pile-count {
@@ -838,8 +905,8 @@
       .card { padding: 1rem .75rem; margin-bottom: .75rem; }
       .book-piles-container { gap: .35rem; padding: .15rem 0; }
       .shelf { width: 100px; }
-      .sub-pile .shelf { width: 40px; }
-      .multi-pile-row { gap: 4px; }
+      .bookcase-row { padding-bottom: 5px; }
+      .bookcase-row::after { height: 5px; left: -3px; right: -3px; }
       .book-3d .book-title { font-size: .38rem; }
       .pile-count { font-size: 1.4rem; margin-top: .2rem; }
       .pile-label { font-size: .8rem; margin-top: .2rem; }
@@ -1502,18 +1569,23 @@
       return bookEl;
     }
 
+    function createUprightBook(colors, h, w, delay) {
+      const book = document.createElement('div');
+      book.className = 'book-upright';
+      book.style.cssText = `width:${w}px;height:${h}px;background:linear-gradient(90deg,${adjustColor(colors.bg, -12)} 0%,${adjustColor(colors.bg, 8)} 20%,${colors.bg} 50%,${adjustColor(colors.bg, -5)} 80%,${adjustColor(colors.bg, -15)} 100%);animation-delay:${delay}s;`;
+      return book;
+    }
+
     function buildBookPile(container, count, palette, authorName) {
-      // Clear the wrapper (parent of container is .book-pile-wrapper)
       const wrapper = container.parentElement;
-      // Remove any previous multi-pile rows
-      wrapper.querySelectorAll('.multi-pile-row').forEach(el => el.remove());
+      wrapper.querySelectorAll('.bookcase').forEach(el => el.remove());
       container.innerHTML = '';
       container.style.display = '';
 
       const rounded = Math.max(1, Math.round(count));
 
-      // Single pile: exact count up to 15 books
-      if (rounded <= 15) {
+      // Small count: flat stacked pile (exact, cozy look)
+      if (rounded <= 6) {
         const shelf = document.createElement('div');
         shelf.className = 'shelf';
         container.appendChild(shelf);
@@ -1528,57 +1600,70 @@
         return;
       }
 
-      // Multiple sub-piles for larger counts
+      // Larger count: bookcase with upright standing books
       container.style.display = 'none';
-      const row = document.createElement('div');
-      row.className = 'multi-pile-row';
 
-      // Determine sub-pile layout
-      let booksPerPile, maxPiles;
-      if (rounded <= 50) {
-        booksPerPile = 10;
-        maxPiles = 5;
-      } else if (rounded <= 200) {
-        booksPerPile = 20;
-        maxPiles = 6;
+      const isMobile = window.innerWidth <= 600;
+      const booksPerShelf = isMobile ? 6 : 8;
+      const maxShelves = 5;
+
+      // Determine how many books to show and their size
+      let totalBooks, bookW, bookMinH, bookMaxH;
+      if (rounded <= 40) {
+        totalBooks = rounded;
+        bookW = isMobile ? 13 : 15;
+        bookMinH = 32; bookMaxH = 48;
+      } else if (rounded <= 100) {
+        totalBooks = Math.min(rounded, maxShelves * booksPerShelf);
+        bookW = isMobile ? 11 : 13;
+        bookMinH = 28; bookMaxH = 42;
+      } else if (rounded <= 500) {
+        totalBooks = maxShelves * (booksPerShelf + 2);
+        bookW = isMobile ? 9 : 11;
+        bookMinH = 25; bookMaxH = 38;
       } else {
-        booksPerPile = 50;
-        maxPiles = 8;
+        totalBooks = maxShelves * (booksPerShelf + 4);
+        bookW = isMobile ? 7 : 9;
+        bookMinH = 22; bookMaxH = 35;
       }
 
-      const totalPiles = Math.min(maxPiles, Math.ceil(rounded / booksPerPile));
-      const booksShown = Math.min(rounded, totalPiles * booksPerPile);
-      let booksLeft = booksShown;
+      const numShelves = Math.min(maxShelves, Math.ceil(totalBooks / booksPerShelf));
 
-      for (let p = 0; p < totalPiles; p++) {
-        const pileBooks = Math.min(booksPerPile, booksLeft);
-        booksLeft -= pileBooks;
+      const bookcase = document.createElement('div');
+      bookcase.className = 'bookcase';
+      bookcase.style.order = '1';
 
-        const subPile = document.createElement('div');
-        subPile.className = 'sub-pile';
+      let booksPlaced = 0;
+      for (let s = 0; s < numShelves; s++) {
+        const remaining = totalBooks - booksPlaced;
+        const shelvesLeft = numShelves - s;
+        const booksOnShelf = Math.ceil(remaining / shelvesLeft);
 
-        const shelf = document.createElement('div');
-        shelf.className = 'shelf';
-        subPile.appendChild(shelf);
+        const row = document.createElement('div');
+        row.className = 'bookcase-row';
 
-        // Scale book size based on booksPerPile to keep piles compact
-        const bookH = booksPerPile <= 10 ? 10 : (booksPerPile <= 20 ? 6 : 4);
-        const bookW = booksPerPile <= 10 ? 50 : (booksPerPile <= 20 ? 45 : 40);
-
-        for (let i = 0; i < pileBooks; i++) {
-          const colors = palette[(p * booksPerPile + i) % palette.length];
-          const h = bookH + Math.random() * 3;
-          const w = bookW + (Math.random() - 0.5) * 10;
-          const title = BOOK_TITLES[(p * booksPerPile + i) % BOOK_TITLES.length];
-          subPile.appendChild(createBook(colors, h, w, 0, title, authorName, (p * 0.15) + (i * 0.04) + 0.1));
+        for (let i = 0; i < booksOnShelf; i++) {
+          const idx = booksPlaced + i;
+          const colors = palette[idx % palette.length];
+          const h = bookMinH + Math.random() * (bookMaxH - bookMinH);
+          const w = bookW + (Math.random() - 0.5) * 4;
+          const delay = (s * 0.1) + (i * 0.03) + 0.1;
+          row.appendChild(createUprightBook(colors, h, w, delay));
         }
 
-        row.appendChild(subPile);
+        booksPlaced += booksOnShelf;
+        bookcase.appendChild(row);
       }
 
-      // Insert multi-pile row in the same position as the scene (order: 1)
-      row.style.order = '1';
-      wrapper.appendChild(row);
+      // Overflow hint for very large counts
+      if (rounded > totalBooks) {
+        const overflow = document.createElement('div');
+        overflow.className = 'bookcase-overflow';
+        overflow.textContent = '+ ' + (rounded - totalBooks).toLocaleString() + ' more';
+        bookcase.appendChild(overflow);
+      }
+
+      wrapper.appendChild(bookcase);
     }
 
     function adjustColor(hex, amount) {
