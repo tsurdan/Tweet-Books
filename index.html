@@ -128,8 +128,8 @@
     .card {
       background: var(--card);
       border-radius: 16px;
-      padding: 2rem;
-      margin-bottom: 1.5rem;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
       border: 1px solid var(--card-border);
       box-shadow: 0 2px 12px var(--shadow), 0 1px 3px var(--shadow);
       position: relative;
@@ -364,7 +364,7 @@
       display: flex;
       flex-direction: column-reverse;
       align-items: center;
-      min-height: 60px;
+      min-height: 40px;
       position: relative;
       order: 1;
     }
@@ -375,6 +375,7 @@
 
     .pile-count-label {
       order: 4;
+      display: none;
     }
 
     /* Wooden shelf under pile */
@@ -515,9 +516,9 @@
     }
 
     .pile-count {
-      font-size: 2.5rem;
+      font-size: 2rem;
       font-weight: 800;
-      margin-top: .5rem;
+      margin-top: .4rem;
       color: var(--accent-burgundy);
       line-height: 1;
     }
@@ -655,28 +656,33 @@
 
     /* ── Result banner (inside piles card for screenshot) ── */
     .result-banner {
-      text-align: center;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
       margin-bottom: .5rem;
-      padding-bottom: .5rem;
+      padding-bottom: .4rem;
       border-bottom: 1px solid var(--card-border);
     }
     .result-banner img {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       border: 2px solid var(--accent-warm);
-      margin-bottom: .25rem;
+      flex-shrink: 0;
+    }
+    .result-banner .result-info {
+      min-width: 0;
     }
     .result-banner .result-name {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: 1.05rem;
+      font-size: .95rem;
       font-weight: 700;
       color: var(--text);
+      line-height: 1.2;
     }
     .result-banner .result-handle {
       color: var(--text-muted);
-      font-size: .75rem;
-      margin-top: .05rem;
+      font-size: .7rem;
     }
 
     /* ── Footer ── */
@@ -704,7 +710,7 @@
         linear-gradient(180deg, #fdf8f0 0%, #f5edd8 100%);
       border: 1px solid #d4c5a0;
       border-radius: 3px 8px 8px 3px;
-      padding: 1.25rem 1.5rem 1rem;
+      padding: 1rem 1.25rem .75rem;
       box-shadow:
         2px 2px 8px rgba(120,90,40,0.1),
         0 0 0 1px rgba(180,160,120,0.15);
@@ -762,16 +768,16 @@
       z-index: 1;
       font-weight: 700;
       font-size: 1rem;
-      line-height: 1.55;
+      line-height: 1.4;
       color: var(--accent-burgundy);
       padding: 0 0.25rem;
     }
 
     .joke-text::before {
       content: '\201C';
-      font-size: 3rem;
+      font-size: 2rem;
       line-height: 0;
-      vertical-align: -0.35em;
+      vertical-align: -0.25em;
       color: var(--accent-gold);
       opacity: 0.5;
       margin-right: 2px;
@@ -779,9 +785,9 @@
     }
     .joke-text::after {
       content: '\201D';
-      font-size: 3rem;
+      font-size: 2rem;
       line-height: 0;
-      vertical-align: -0.35em;
+      vertical-align: -0.25em;
       color: var(--accent-gold);
       opacity: 0.5;
       margin-left: 2px;
@@ -790,25 +796,7 @@
 
     /* Decorative divider under joke */
     .page-divider {
-      position: relative;
-      z-index: 1;
-      margin-top: 1.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      color: var(--accent-gold);
-      opacity: 0.45;
-      font-size: 0.7rem;
-      letter-spacing: 3px;
-    }
-    .page-divider::before,
-    .page-divider::after {
-      content: '';
-      flex: 1;
-      max-width: 60px;
-      height: 1px;
-      background: var(--accent-gold);
+      display: none;
     }
 
     @keyframes jokeAppear {
@@ -824,22 +812,22 @@
       .logo { font-size: 2.4rem; }
       header { margin-bottom: 1.5rem; padding-top: 1rem; }
       .card { padding: 1rem .75rem; margin-bottom: .75rem; }
-      .book-piles-container { gap: .5rem; padding: .25rem 0; }
-      .shelf { width: 110px; }
-      .book-3d .book-title { font-size: .4rem; }
-      .pile-count { font-size: 2rem; margin-top: .35rem; }
-      .pile-label { font-size: .85rem; margin-top: .3rem; }
+      .book-piles-container { gap: .35rem; padding: .15rem 0; }
+      .shelf { width: 100px; }
+      .book-3d .book-title { font-size: .38rem; }
+      .pile-count { font-size: 1.4rem; margin-top: .2rem; }
+      .pile-label { font-size: .8rem; margin-top: .2rem; }
       .pile-count-label { font-size: .7rem; }
       .username-row { flex-direction: column; }
       .btn-small { width: 100%; padding: 1rem; }
       .btn { padding: 1rem; font-size: 1.05rem; }
-      .literary-joke { margin-top: .5rem; }
-      .book-page { padding: 1rem 1rem .75rem; }
-      .joke-text { font-size: .9rem; line-height: 1.45; }
-      .result-banner { margin-bottom: .4rem; padding-bottom: .4rem; }
-      .result-banner img { width: 36px; height: 36px; }
-      .result-banner .result-name { font-size: .95rem; }
-      .result-banner .result-handle { font-size: .7rem; }
+      .literary-joke { margin-top: .35rem; }
+      .book-page { padding: .6rem .75rem .5rem; }
+      .joke-text { font-size: .8rem; line-height: 1.35; }
+      .result-banner { margin-bottom: .3rem; padding-bottom: .3rem; gap: .4rem; }
+      .result-banner img { width: 30px; height: 30px; }
+      .result-banner .result-name { font-size: .85rem; }
+      .result-banner .result-handle { font-size: .65rem; }
       .author-rank { padding: 1rem; margin-bottom: .75rem; }
       .author-rank .rank-title { font-size: 1.2rem; }
       .author-rank .rank-desc { font-size: .82rem; }
@@ -859,12 +847,12 @@
       .container { padding: .75rem .5rem; }
       .book-piles-container { gap: .35rem; }
       .shelf { width: 90px; }
-      .pile-count { font-size: 1.7rem; }
+      .pile-count { font-size: 1.2rem; }
       .pile-label { font-size: .8rem; }
       .card { padding: .75rem .5rem; }
-      .book-page { padding: .75rem .75rem .5rem; }
-      .joke-text { font-size: .82rem; }
-      .result-banner img { width: 32px; height: 32px; }
+      .book-page { padding: .5rem .6rem .4rem; }
+      .joke-text { font-size: .75rem; }
+      .result-banner img { width: 26px; height: 26px; }
     }
 
     /* Touch-friendly targets */
@@ -933,20 +921,17 @@
             <div class="pile-label">✍ Written</div>
             <div class="book-pile-scene" id="writtenPile"></div>
             <div class="pile-count" id="booksWritten">0</div>
-            <div class="pile-count-label">books</div>
           </div>
           <div class="book-pile-wrapper">
             <div class="pile-label">📖 Read</div>
             <div class="book-pile-scene" id="readPile"></div>
             <div class="pile-count" id="booksRead">0</div>
-            <div class="pile-count-label">books</div>
           </div>
         </div>
         <!-- Literary joke (inside card for screenshot) -->
         <div class="literary-joke" id="literaryJoke">
           <div class="book-page">
             <div class="joke-text" id="jokeText"></div>
-            <div class="page-divider">&#9830;</div>
           </div>
         </div>
       </div>
@@ -1295,7 +1280,8 @@
         const progress = Math.min(elapsed / duration, 1);
         const eased = 1 - Math.pow(1 - progress, 3);
         const current = target * eased;
-        el.textContent = isDecimal ? current.toFixed(1) : Math.round(current).toLocaleString();
+        const num = isDecimal ? current.toFixed(1) : Math.round(current).toLocaleString();
+        el.textContent = num + ' books';
         if (progress < 1) requestAnimationFrame(tick);
       }
       requestAnimationFrame(tick);
@@ -1450,7 +1436,9 @@
 
     function buildBookPile(container, count, palette, authorName) {
       container.innerHTML = '';
-      const displayCount = Math.max(1, Math.min(Math.round(count), 18));
+      const isMobile = window.innerWidth <= 600;
+      const maxBooks = isMobile ? 7 : 10;
+      const displayCount = Math.max(1, Math.min(Math.round(count), maxBooks));
 
       // Shelf
       const shelf = document.createElement('div');
@@ -1459,7 +1447,7 @@
 
       for (let i = 0; i < displayCount; i++) {
         const colors = palette[i % palette.length];
-        const h = 16 + Math.random() * 8;
+        const h = 13 + Math.random() * 6;
         const w = Math.min(120, 100 + (Math.random() - 0.5) * 30);
         const offset = (Math.random() - 0.5) * 8;
         const baseTitle = BOOK_TITLES[i % BOOK_TITLES.length] + (i < BOOK_TITLES.length ? '' : ' ' + (Math.floor(i / BOOK_TITLES.length) + 1));
@@ -1576,7 +1564,7 @@
         const avatarSrc = (userData && userData.avatar) ? userData.avatar : '';
         const displayName = (userData && userData.name) ? sanitize(userData.name) : '@' + sanitize(username);
         const avatarImg = avatarSrc ? `<img src="${sanitize(avatarSrc)}" alt="" onerror="this.style.display='none'">` : '';
-        bannerEl.innerHTML = `<div class="result-banner">${avatarImg}<div class="result-name">${displayName}</div><div class="result-handle">@${sanitize(username)}</div></div>`;
+        bannerEl.innerHTML = `<div class="result-banner">${avatarImg}<div class="result-info"><div class="result-name">${displayName}</div><div class="result-handle">@${sanitize(username)}</div></div></div>`;
       } else {
         bannerEl.innerHTML = '';
       }
