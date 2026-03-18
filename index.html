@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tweet Books — How Many Books Are Your Tweets Worth?</title>
   <meta name="description" content="Enter your Twitter username and discover how many books you've written and read based on your tweets and likes.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Tweet Books — How Many Books Are Your Tweets Worth?">
+  <meta property="og:description" content="Turn your tweets and likes into books written and books read.">
+  <meta property="og:url" content="https://tsurdan.github.io/Tweet-Books/">
+  <meta property="og:image" content="https://image.thum.io/get/width/1200/https://tsurdan.github.io/Tweet-Books/">
+  <meta property="og:image:alt" content="Preview of Tweet Books showing book piles for written and read books.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Tweet Books — How Many Books Are Your Tweets Worth?">
+  <meta name="twitter:description" content="Turn your tweets and likes into books written and books read.">
+  <meta name="twitter:image" content="https://image.thum.io/get/width/1200/https://tsurdan.github.io/Tweet-Books/">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
@@ -386,7 +396,7 @@
       align-items: center;
       justify-content: flex-end;
       text-align: center;
-      min-height: 44px;
+      min-height: 52px;
       gap: 0;
       width: 100%;
     }
@@ -561,7 +571,7 @@
     .pile-count {
       font-size: 2rem;
       font-weight: 800;
-      margin: 0;
+      margin: 0 0 .28rem;
       color: var(--accent-burgundy);
       line-height: 1;
       position: relative;
@@ -812,10 +822,31 @@
       position: relative;
       z-index: 1;
       font-weight: 700;
-      font-size: 1rem;
-      line-height: 1.4;
+      font-size: 1.16rem;
+      line-height: 1.45;
       color: var(--accent-burgundy);
       padding: 0 0.25rem;
+    }
+
+    .joke-text.typing {
+      white-space: pre-wrap;
+    }
+
+    .joke-text.typing::marker {
+      content: '';
+    }
+
+    .joke-text.typing-caret::after {
+      content: '|';
+      display: inline-block;
+      margin-left: 3px;
+      color: rgba(123,45,59,0.8);
+      animation: caretBlink 1s steps(1, end) infinite;
+    }
+
+    @keyframes caretBlink {
+      0%, 45% { opacity: 1; }
+      46%, 100% { opacity: 0; }
     }
 
     .joke-text::before {
@@ -859,12 +890,12 @@
       .card { padding: 1rem .75rem; margin-bottom: .75rem; }
       .book-piles-container { gap: .35rem; padding: .15rem 0; }
       .book-piles-container::after { top: .2rem; bottom: .2rem; opacity: .8; }
-      .pile-head { min-height: 34px; }
+      .pile-head { min-height: 40px; }
       .pile-footer { margin-top: .14rem; gap: .35rem; }
       .pile-footer::before,
       .pile-footer::after { max-width: 45px; }
       .book-flat .book-label { font-size: .36rem; }
-      .pile-count { font-size: 1.4rem; }
+      .pile-count { font-size: 1.4rem; margin-bottom: .2rem; }
       .pile-label { font-size: .8rem; }
       .pile-count-label { font-size: .7rem; }
       .username-row { flex-direction: column; }
@@ -872,7 +903,7 @@
       .btn { padding: 1rem; font-size: 1.05rem; }
       .literary-joke { margin-bottom: .75rem; }
       .book-page { padding: .6rem .75rem .5rem; }
-      .joke-text { font-size: .8rem; line-height: 1.35; }
+      .joke-text { font-size: .96rem; line-height: 1.4; }
       .result-banner { margin-bottom: .3rem; padding-bottom: .3rem; gap: .4rem; }
       .result-banner img { width: 30px; height: 30px; }
       .result-banner .result-name { font-size: .85rem; }
@@ -895,12 +926,12 @@
       h1 { font-size: 1.5rem; }
       .container { padding: .75rem .5rem; }
       .book-piles-container { gap: .35rem; }
-      .pile-head { min-height: 30px; }
+      .pile-head { min-height: 34px; }
       .pile-count { font-size: 1.2rem; }
       .pile-label { font-size: .8rem; }
       .card { padding: .75rem .5rem; }
       .book-page { padding: .5rem .6rem .4rem; }
-      .joke-text { font-size: .75rem; }
+      .joke-text { font-size: .86rem; }
       .result-banner img { width: 26px; height: 26px; }
     }
 
@@ -1345,6 +1376,33 @@
       requestAnimationFrame(tick);
     }
 
+    let jokeTypingRunId = 0;
+    function typeJokeText(el, text, startDelayMs) {
+      const runId = ++jokeTypingRunId;
+      el.textContent = '';
+      el.classList.add('typing', 'typing-caret');
+
+      const stepMs = 18;
+      const beginAt = Math.max(0, startDelayMs | 0);
+
+      setTimeout(() => {
+        if (runId !== jokeTypingRunId) return;
+        let i = 0;
+        const timer = setInterval(() => {
+          if (runId !== jokeTypingRunId) {
+            clearInterval(timer);
+            return;
+          }
+          i += 1;
+          el.textContent = text.slice(0, i);
+          if (i >= text.length) {
+            clearInterval(timer);
+            el.classList.remove('typing-caret');
+          }
+        }, stepMs);
+      }, beginAt);
+    }
+
     function setStatus(type, html) {
       const el = document.getElementById('status');
       el.className = 'status ' + type;
@@ -1676,6 +1734,11 @@
       }
 
       container.appendChild(cluster);
+
+      // Return an estimate for when pile animation is done.
+      const longestPile = pileSizes.length ? Math.max(...pileSizes) : totalBooks;
+      const maxDelay = ((numPiles - 1) * 0.25) + ((Math.max(1, longestPile) - 1) * 0.1);
+      return Math.round((maxDelay + 0.7) * 1000);
     }
 
     function adjustColor(hex, amount) {
@@ -1742,8 +1805,9 @@
 
       // Build book piles (pass maxCount so heights are proportional)
       const maxCount = Math.max(booksWritten, booksRead, 1);
-      buildBookPile(document.getElementById('writtenPile'), booksWritten, WRITTEN_BOOK_COLORS, username, maxCount);
-      buildBookPile(document.getElementById('readPile'), booksRead, READ_BOOK_COLORS, '', maxCount);
+      const writtenAnimMs = buildBookPile(document.getElementById('writtenPile'), booksWritten, WRITTEN_BOOK_COLORS, username, maxCount) || 0;
+      const readAnimMs = buildBookPile(document.getElementById('readPile'), booksRead, READ_BOOK_COLORS, '', maxCount) || 0;
+      const pileAnimDoneMs = Math.max(writtenAnimMs, readAnimMs);
 
       animateNumber(document.getElementById('booksWritten'), booksWritten);
       animateNumber(document.getElementById('booksRead'), booksRead);
@@ -1761,7 +1825,7 @@
       const jokeEl = document.getElementById('literaryJoke');
       const jokeTextEl = document.getElementById('jokeText');
       if (jokes.length > 0) {
-        jokeTextEl.textContent = jokes[0].text;
+        typeJokeText(jokeTextEl, jokes[0].text, pileAnimDoneMs + 120);
         jokeEl.style.display = '';
       } else {
         jokeEl.style.display = 'none';
