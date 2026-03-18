@@ -332,7 +332,7 @@
     }
 
     /* ═══════════════════════════════════════
-       3D BOOK PILE - THE STAR OF THE SHOW
+       3D BOOK PILE - MESSY STACKED PILES
     ═══════════════════════════════════════ */
     .book-piles-container {
       display: grid;
@@ -359,252 +359,151 @@
       letter-spacing: .03em;
     }
 
-    .book-pile-scene {
-      perspective: 600px;
-      display: flex;
-      flex-direction: column-reverse;
-      align-items: center;
-      min-height: 30px;
+    /* Container for one or more sub-piles */
+    .pile-cluster {
       position: relative;
-      order: 1;
-    }
-
-    /* Bookcase for larger counts */
-    .bookcase {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      order: 1;
-    }
-
-    .bookcase-row {
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      gap: 1px;
+      order: 1;
+      min-height: 40px;
+      overflow: hidden;
+      width: 100%;
+      padding: 4px 0;
+    }
+
+    /* Each sub-pile is a column of stacked books */
+    .sub-pile {
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
       position: relative;
-      padding-bottom: 7px;
     }
 
-    .bookcase-row::after {
-      content: '';
+    /* Shadow/surface under each pile */
+    .pile-shadow {
       position: absolute;
-      bottom: 0;
-      left: -5px;
-      right: -5px;
-      height: 7px;
-      background: linear-gradient(180deg, #c4a882 0%, #a3845e 40%, #8b6f47 100%);
-      border-radius: 1px 1px 2px 2px;
-      box-shadow: 0 2px 4px rgba(61,46,31,0.15), 0 1px 2px rgba(61,46,31,0.08);
-    }
-
-    .bookcase-row::before {
-      content: '';
-      position: absolute;
-      bottom: 1px;
-      left: -4px;
-      right: -4px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      z-index: 1;
-      border-radius: 1px;
-    }
-
-    .book-upright {
-      position: relative;
-      border-radius: 1px 2px 2px 1px;
-      animation: bookSlideIn .7s cubic-bezier(.23,1,.32,1) backwards;
-      z-index: 1;
-      box-shadow:
-        1px 0 0 rgba(0,0,0,0.08) inset,
-        -1px 0 0 rgba(255,255,255,0.1) inset,
-        0 -1px 0 rgba(255,255,255,0.1) inset;
-    }
-
-    /* Pages visible at top of upright book */
-    .book-upright::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 2px;
-      right: 2px;
-      height: 3px;
-      background: linear-gradient(180deg, #e8e0d4, #f5efe6);
-      border-radius: 1px 1px 0 0;
-    }
-
-    /* Spine detail line */
-    .book-upright::before {
-      content: '';
-      position: absolute;
-      top: 15%;
-      bottom: 15%;
+      bottom: -3px;
       left: 50%;
-      width: 1px;
-      background: rgba(255,255,255,0.15);
       transform: translateX(-50%);
+      width: 85%;
+      height: 6px;
+      background: radial-gradient(ellipse, rgba(61,46,31,0.18) 0%, rgba(61,46,31,0.06) 60%, transparent 100%);
+      border-radius: 50%;
+      z-index: 0;
     }
 
-    @keyframes bookSlideIn {
-      0%   { opacity: 0; transform: translateY(-15px) scaleY(.85); }
-      50%  { opacity: 1; transform: translateY(1px) scaleY(1.02); }
-      70%  { transform: translateY(-1px) scaleY(.99); }
-      100% { opacity: 1; transform: translateY(0) scaleY(1); }
-    }
-
-    .pile-count {
-      order: 3;
-    }
-
-    .pile-count-label {
-      order: 4;
-      display: none;
-    }
-
-    /* Wooden shelf under pile */
-    .shelf {
-      width: 170px;
-      height: 12px;
-      background: linear-gradient(180deg, #c4a882 0%, #a3845e 40%, #8b6f47 100%);
-      border-radius: 2px 2px 4px 4px;
-      position: relative;
-      box-shadow: 0 4px 8px rgba(61,46,31,0.2), 0 2px 4px rgba(61,46,31,0.1);
-    }
-    .shelf::before {
-      content: '';
-      position: absolute;
-      top: 2px; left: 2px; right: 2px;
-      height: 3px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-      border-radius: 2px;
-    }
-    .shelf::after {
-      /* wood grain texture line */
-      content: '';
-      position: absolute;
-      top: 6px; left: 8px; right: 8px;
-      height: 1px;
-      background: rgba(0,0,0,0.08);
-    }
-
-    /* Individual 3D book - side view (spine facing us) */
-    .book-3d {
+    /* Individual flat stacked book (spine visible from top) */
+    .book-flat {
       position: relative;
       transform-style: preserve-3d;
-      animation: bookPlace .8s cubic-bezier(.23,1,.32,1) backwards;
+      z-index: 1;
+      animation: bookDrop .7s cubic-bezier(.22,.68,.31,1.04) backwards;
     }
 
-    @keyframes bookPlace {
-      0%   { opacity: 0; transform: translateY(-30px) rotate(-2deg); }
-      40%  { opacity: 1; }
-      65%  { transform: translateY(2px) rotate(0.5deg); }
-      82%  { transform: translateY(-1px) rotate(-0.2deg); }
-      100% { opacity: 1; transform: translateY(0) rotate(0deg); }
+    @keyframes bookDrop {
+      0%   { opacity: 0; transform: translateY(-18px) scale(.96); }
+      50%  { opacity: 1; }
+      78%  { transform: translateY(1px) scale(1.005); }
+      100% { opacity: 1; transform: translateY(0) rotate(var(--rot, 0deg)) scale(1); }
     }
 
-    /* Book top face (the spine cover we actually see) */
-    .book-3d .book-top {
+    .book-flat .book-spine {
       position: relative;
       border-radius: 2px;
       overflow: hidden;
-      /* Subtle leather/cloth texture via gradient */
       box-shadow:
-        0 -1px 0 rgba(255,255,255,0.15) inset,
-        0 1px 0 rgba(0,0,0,0.1) inset;
+        0 1px 3px rgba(0,0,0,0.15),
+        0 -1px 0 rgba(255,255,255,0.12) inset,
+        0 1px 0 rgba(0,0,0,0.08) inset;
     }
 
-    /* Spine detail — gold/silver line */
-    .book-3d .book-top::before {
+    /* Gold/silver decorative line on spine */
+    .book-flat .book-spine::before {
       content: '';
       position: absolute;
-      left: 8px; right: 8px;
+      left: 10px; right: 10px;
       top: 50%;
       height: 1px;
-      background: linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.3) 20%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.3) 80%, transparent 95%);
+      background: linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.25) 20%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0.25) 80%, transparent 95%);
       transform: translateY(-50%);
     }
 
-    /* Second decorative line */
-    .book-3d .book-top::after {
+    /* Binding edge detail */
+    .book-flat .book-spine::after {
       content: '';
       position: absolute;
-      left: 6px;
-      top: 3px;
-      bottom: 3px;
-      width: 3px;
-      background: rgba(0,0,0,0.12);
+      left: 5px;
+      top: 2px;
+      bottom: 2px;
+      width: 2px;
+      background: rgba(0,0,0,0.1);
       border-radius: 1px;
     }
 
-    /* Right edge of book (pages) */
-    .book-3d .book-pages {
+    /* Pages visible on the right edge */
+    .book-flat .book-edge {
       position: absolute;
-      right: -4px;
+      right: -3px;
       top: 1px;
       bottom: 1px;
-      width: 4px;
-      background: linear-gradient(90deg, #e8e0d4, #f5efe6, #e8e0d4);
+      width: 3px;
+      background: linear-gradient(90deg, #e5ddd0, #f2ece3, #e5ddd0);
       border-radius: 0 1px 1px 0;
-      /* Page line texture */
       background-image: repeating-linear-gradient(
         180deg,
-        transparent,
-        transparent 2px,
-        rgba(0,0,0,0.03) 2px,
-        rgba(0,0,0,0.03) 3px
+        transparent, transparent 2px,
+        rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 3px
       );
     }
 
-    /* Bottom edge (3D depth illusion) */
-    .book-3d .book-bottom {
+    /* Bottom shadow for 3D depth */
+    .book-flat .book-depth {
       position: absolute;
-      bottom: -3px;
+      bottom: -2px;
       left: 1px;
-      right: -3px;
-      height: 3px;
+      right: -2px;
+      height: 2px;
       border-radius: 0 0 2px 2px;
-      background: rgba(0,0,0,0.15);
+      background: rgba(0,0,0,0.12);
     }
 
-    /* Book title text on spine */
-    .book-3d .book-title {
+    /* Book title on spine */
+    .book-flat .book-label {
       position: absolute;
-      left: 10px;
-      right: 6px;
+      left: 10px; right: 6px;
       top: 50%;
       transform: translateY(-50%);
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: .45rem;
+      font-size: .42rem;
       font-weight: 600;
-      color: rgba(255,255,255,0.6);
       white-space: nowrap;
-      overflow: visible;
+      overflow: hidden;
       letter-spacing: .02em;
       text-shadow: 0 1px 1px rgba(0,0,0,0.2);
       display: flex;
       align-items: center;
-      gap: 0;
     }
-    .book-3d .book-title .book-author {
+    .book-flat .book-label .book-author {
       margin-left: auto;
-      font-size: .38rem;
+      font-size: .36rem;
       font-style: italic;
       font-weight: 400;
-      opacity: 0.85;
-      letter-spacing: .01em;
+      opacity: 0.8;
     }
-    .book-3d .book-title .title-sep {
-      margin: 0 4px;
-      opacity: 0.4;
-      font-style: normal;
+    .book-flat .book-label .title-sep {
+      margin: 0 3px;
+      opacity: 0.35;
     }
 
     .pile-count {
       font-size: 2rem;
       font-weight: 800;
-      margin-top: .4rem;
+      margin-top: .5rem;
       color: var(--accent-burgundy);
       line-height: 1;
+      position: relative;
+      z-index: 5;
     }
 
     .pile-count-label {
@@ -897,10 +796,7 @@
       header { margin-bottom: 1.5rem; padding-top: 1rem; }
       .card { padding: 1rem .75rem; margin-bottom: .75rem; }
       .book-piles-container { gap: .35rem; padding: .15rem 0; }
-      .shelf { width: 100px; }
-      .bookcase-row { padding-bottom: 5px; }
-      .bookcase-row::after { height: 5px; left: -3px; right: -3px; }
-      .book-3d .book-title { font-size: .38rem; }
+      .book-flat .book-label { font-size: .36rem; }
       .pile-count { font-size: 1.4rem; margin-top: .2rem; }
       .pile-label { font-size: .8rem; margin-top: .2rem; }
       .pile-count-label { font-size: .7rem; }
@@ -932,7 +828,6 @@
       h1 { font-size: 1.5rem; }
       .container { padding: .75rem .5rem; }
       .book-piles-container { gap: .35rem; }
-      .shelf { width: 90px; }
       .pile-count { font-size: 1.2rem; }
       .pile-label { font-size: .8rem; }
       .card { padding: .75rem .5rem; }
@@ -1521,134 +1416,192 @@
       'anthology', 'letters', 'writings', 'typescript'
     ];
 
-    function createBook(colors, h, w, offset, title, authorName, delay) {
+    function createFlatBook(colors, h, w, rot, offsetX, title, authorName, delay) {
       const cleanAuthor = authorName ? authorName.replace(/[^a-zA-Z]/g, '') : '';
       const bookEl = document.createElement('div');
-      bookEl.className = 'book-3d';
+      bookEl.className = 'book-flat';
+      bookEl.style.setProperty('--rot', rot + 'deg');
       bookEl.style.animationDelay = delay + 's';
-      bookEl.style.marginLeft = offset + 'px';
+      bookEl.style.marginLeft = offsetX + 'px';
+      bookEl.style.transform = 'rotate(' + rot + 'deg)';
 
-      const top = document.createElement('div');
-      top.className = 'book-top';
-      top.style.cssText = `width:${w}px;height:${h}px;background:linear-gradient(180deg,${adjustColor(colors.bg, 15)} 0%,${colors.bg} 20%,${adjustColor(colors.bg, -8)} 80%,${adjustColor(colors.bg, -20)} 100%);`;
+      const spine = document.createElement('div');
+      spine.className = 'book-spine';
+      spine.style.cssText = `width:${w}px;height:${h}px;background:linear-gradient(180deg,${adjustColor(colors.bg, 15)} 0%,${colors.bg} 20%,${adjustColor(colors.bg, -8)} 80%,${adjustColor(colors.bg, -20)} 100%);`;
 
-      const titleEl = document.createElement('div');
-      titleEl.className = 'book-title';
+      // Title on spine
+      const labelEl = document.createElement('div');
+      labelEl.className = 'book-label';
       const titleSpan = document.createElement('span');
       titleSpan.textContent = title;
-      titleEl.appendChild(titleSpan);
-      if (cleanAuthor && w > 55) {
+      labelEl.appendChild(titleSpan);
+      if (cleanAuthor && w > 60) {
         const sep = document.createElement('span');
         sep.className = 'title-sep';
         sep.textContent = '|';
-        titleEl.appendChild(sep);
+        labelEl.appendChild(sep);
         const authorEl = document.createElement('span');
         authorEl.className = 'book-author';
         authorEl.textContent = cleanAuthor;
-        titleEl.appendChild(authorEl);
+        labelEl.appendChild(authorEl);
       }
-      titleEl.style.color = colors.accent + 'cc';
-      top.appendChild(titleEl);
+      labelEl.style.color = colors.accent + 'bb';
+      spine.appendChild(labelEl);
 
-      const pages = document.createElement('div');
-      pages.className = 'book-pages';
-      const bottom = document.createElement('div');
-      bottom.className = 'book-bottom';
-      bottom.style.background = adjustColor(colors.bg, -40);
+      const edge = document.createElement('div');
+      edge.className = 'book-edge';
+      const depth = document.createElement('div');
+      depth.className = 'book-depth';
 
-      bookEl.appendChild(top);
-      bookEl.appendChild(pages);
-      bookEl.appendChild(bottom);
+      bookEl.appendChild(spine);
+      bookEl.appendChild(edge);
+      bookEl.appendChild(depth);
       return bookEl;
     }
 
-    function createUprightBook(colors, h, w, delay) {
-      const book = document.createElement('div');
-      book.className = 'book-upright';
-      book.style.cssText = `width:${w}px;height:${h}px;background:linear-gradient(90deg,${adjustColor(colors.bg, -12)} 0%,${adjustColor(colors.bg, 8)} 20%,${colors.bg} 50%,${adjustColor(colors.bg, -5)} 80%,${adjustColor(colors.bg, -15)} 100%);animation-delay:${delay}s;`;
-      return book;
+    function buildOnePile(booksInPile, palette, authorName, startIdx, baseDelay, baseW, baseH) {
+      const pile = document.createElement('div');
+      pile.className = 'sub-pile';
+
+      // Shadow under pile
+      const shadow = document.createElement('div');
+      shadow.className = 'pile-shadow';
+      pile.appendChild(shadow);
+
+      // Generate books with varied sizes
+      const books = [];
+      const rawFactors = [];
+      for (let i = 0; i < booksInPile; i++) {
+        rawFactors.push(0.6 + Math.random() * 0.9); // 0.6x to 1.5x
+      }
+      // Normalize: scale factors so their average is exactly 1.0
+      // This ensures total pile height = booksInPile * baseH (proportional to count)
+      const avg = rawFactors.reduce((a, b) => a + b, 0) / rawFactors.length;
+      const factors = rawFactors.map(f => f / avg);
+
+      for (let i = 0; i < booksInPile; i++) {
+        const idx = startIdx + i;
+        const h = Math.max(6, Math.round(baseH * factors[i]));
+        // Vary length (width): short pocket books to wide hardcovers
+        const lengthFactor = 0.75 + Math.random() * 0.4; // 0.75x to 1.15x
+        const w = Math.round(baseW * lengthFactor);
+        books.push({ idx, h, w, colors: palette[idx % palette.length] });
+      }
+
+      // Sort: biggest (widest + thickest) at bottom, smallest on top
+      books.sort((a, b) => (b.w * b.h) - (a.w * a.h));
+
+      for (let i = 0; i < books.length; i++) {
+        const book = books[i];
+        // Very subtle rotation: ±1.5° max, slightly more toward top
+        const rot = (Math.random() - 0.5) * (1.5 + (i / books.length) * 1.5);
+        // Very subtle offset: ±3px max
+        const offsetX = (Math.random() - 0.5) * 4;
+        const title = BOOK_TITLES[book.idx % BOOK_TITLES.length];
+        const delay = baseDelay + i * 0.1;
+        pile.appendChild(createFlatBook(book.colors, book.h, book.w, rot, offsetX, title, authorName, delay));
+      }
+      return pile;
     }
 
-    function buildBookPile(container, count, palette, authorName) {
+    function buildBookPile(container, count, palette, authorName, maxCount) {
       const wrapper = container.parentElement;
-      wrapper.querySelectorAll('.bookcase').forEach(el => el.remove());
+      // Remove any previous pile clusters
+      wrapper.querySelectorAll('.pile-cluster').forEach(el => el.remove());
       container.innerHTML = '';
-      container.style.display = '';
-
-      const rounded = Math.max(1, Math.round(count));
-
-      // Small count: flat stacked pile (exact, cozy look)
-      if (rounded <= 6) {
-        const shelf = document.createElement('div');
-        shelf.className = 'shelf';
-        container.appendChild(shelf);
-        for (let i = 0; i < rounded; i++) {
-          const colors = palette[i % palette.length];
-          const h = 14 + Math.random() * 5;
-          const w = Math.min(120, 100 + (Math.random() - 0.5) * 30);
-          const offset = (Math.random() - 0.5) * 6;
-          const title = BOOK_TITLES[i % BOOK_TITLES.length];
-          container.appendChild(createBook(colors, h, w, offset, title, authorName, i * 0.15 + 0.1));
-        }
-        return;
-      }
-
-      // Larger count: bookcase with upright standing books
       container.style.display = 'none';
 
+      const rounded = Math.max(1, Math.round(count));
+      const maxRounded = Math.max(1, Math.round(maxCount || count));
       const isMobile = window.innerWidth <= 600;
-      const booksPerShelf = isMobile ? 6 : 8;
-      const maxShelves = 5;
 
-      // Determine how many books to show and their size
-      let totalBooks, bookW, bookMinH, bookMaxH;
-      if (rounded <= 40) {
+      // Base sizing
+      const bookW = isMobile ? 80 : 105;
+      const maxPerPile = isMobile ? 10 : 12;
+
+      // Always show proportional visual books — never cap unfairly
+      // Show exact count up to a max, then sqrt-scale for huge numbers
+      const linearMax = isMobile ? 36 : 48;
+      let totalBooks;
+      if (rounded <= linearMax) {
         totalBooks = rounded;
-        bookW = isMobile ? 13 : 15;
-        bookMinH = 32; bookMaxH = 48;
-      } else if (rounded <= 100) {
-        totalBooks = Math.min(rounded, maxShelves * booksPerShelf);
-        bookW = isMobile ? 11 : 13;
-        bookMinH = 28; bookMaxH = 42;
-      } else if (rounded <= 500) {
-        totalBooks = maxShelves * (booksPerShelf + 2);
-        bookW = isMobile ? 9 : 11;
-        bookMinH = 25; bookMaxH = 38;
       } else {
-        totalBooks = maxShelves * (booksPerShelf + 4);
-        bookW = isMobile ? 7 : 9;
-        bookMinH = 22; bookMaxH = 35;
+        // Sqrt scale above threshold: guarantees more books = more visual books
+        totalBooks = linearMax + Math.round(Math.sqrt(rounded - linearMax) * 2.5);
+      }
+      totalBooks = Math.min(totalBooks, isMobile ? 55 : 75);
+
+      // Number of piles
+      let numPiles;
+      if (totalBooks <= maxPerPile) {
+        numPiles = 1;
+      } else {
+        numPiles = Math.min(isMobile ? 3 : 4, Math.ceil(totalBooks / maxPerPile));
       }
 
-      const numShelves = Math.min(maxShelves, Math.ceil(totalBooks / booksPerShelf));
+      // Scale book thickness so tallest pile stays reasonable
+      const maxBooksPerPile = Math.ceil(totalBooks / numPiles);
+      const maxPileH = isMobile ? 180 : 220;
+      const idealH = isMobile ? 12 : 14;
+      const baseBookH = Math.max(3, Math.min(idealH, maxPileH / maxBooksPerPile));
+      // Scale by log ratio so more books always = taller pile, design unchanged
+      const heightRatio = Math.log(1 + rounded) / Math.log(1 + maxRounded);
+      const bookH = Math.max(3, baseBookH * heightRatio);
 
-      const bookcase = document.createElement('div');
-      bookcase.className = 'bookcase';
-      bookcase.style.order = '1';
+      const cluster = document.createElement('div');
+      cluster.className = 'pile-cluster';
+
+      // Distribute books across piles with varied heights
+      const pileSizes = [];
+      let booksLeft = totalBooks;
+      for (let p = 0; p < numPiles; p++) {
+        const pilesRemaining = numPiles - p;
+        const avg = booksLeft / pilesRemaining;
+        // Vary: ±30% from average, at least 2 books
+        const variance = Math.round((Math.random() - 0.5) * avg * 0.6);
+        const size = Math.max(2, Math.min(booksLeft - (pilesRemaining - 1) * 2, Math.round(avg) + variance));
+        pileSizes.push(size);
+        booksLeft -= size;
+      }
 
       let booksPlaced = 0;
-      for (let s = 0; s < numShelves; s++) {
-        const remaining = totalBooks - booksPlaced;
-        const shelvesLeft = numShelves - s;
-        const booksOnShelf = Math.ceil(remaining / shelvesLeft);
-
-        const row = document.createElement('div');
-        row.className = 'bookcase-row';
-
-        for (let i = 0; i < booksOnShelf; i++) {
-          const idx = booksPlaced + i;
-          const colors = palette[idx % palette.length];
-          const h = bookMinH + Math.random() * (bookMaxH - bookMinH);
-          const w = bookW + (Math.random() - 0.5) * 4;
-          const delay = (s * 0.2) + (i * 0.06) + 0.15;
-          row.appendChild(createUprightBook(colors, h, w, delay));
-        }
-
-        booksPlaced += booksOnShelf;
-        bookcase.appendChild(row);
+      const pileEls = [];
+      for (let p = 0; p < numPiles; p++) {
+        const pile = buildOnePile(pileSizes[p], palette, authorName, booksPlaced, p * 0.25, bookW, bookH);
+        pileEls.push(pile);
+        booksPlaced += pileSizes[p];
       }
 
-      wrapper.appendChild(bookcase);
+      if (numPiles === 1) {
+        cluster.appendChild(pileEls[0]);
+      } else {
+        // Multiple piles: overlap for depth
+        const overlapPx = isMobile ? bookW * 0.5 : bookW * 0.45;
+
+        for (let p = 0; p < numPiles; p++) {
+          const pile = pileEls[p];
+          pile.style.position = p === 0 ? 'relative' : 'absolute';
+          pile.style.bottom = '0';
+          const leftPos = p * (bookW - overlapPx);
+          if (p > 0) pile.style.left = leftPos + 'px';
+
+          // Alternate front/back for depth
+          const isBack = p % 2 === 1;
+          if (isBack && numPiles > 2) {
+            pile.style.zIndex = '1';
+            pile.style.transform = 'scale(0.93) translateY(-6px)';
+            pile.style.opacity = '0.9';
+            pile.style.filter = 'brightness(0.96)';
+          } else {
+            pile.style.zIndex = '2';
+          }
+
+          cluster.appendChild(pile);
+        }
+      }
+
+      cluster.style.order = '1';
+      wrapper.appendChild(cluster);
     }
 
     function adjustColor(hex, amount) {
@@ -1713,9 +1666,10 @@
         bannerEl.innerHTML = '';
       }
 
-      // Build book piles
-      buildBookPile(document.getElementById('writtenPile'), booksWritten, WRITTEN_BOOK_COLORS, username);
-      buildBookPile(document.getElementById('readPile'), booksRead, READ_BOOK_COLORS);
+      // Build book piles (pass maxCount so heights are proportional)
+      const maxCount = Math.max(booksWritten, booksRead, 1);
+      buildBookPile(document.getElementById('writtenPile'), booksWritten, WRITTEN_BOOK_COLORS, username, maxCount);
+      buildBookPile(document.getElementById('readPile'), booksRead, READ_BOOK_COLORS, '', maxCount);
 
       animateNumber(document.getElementById('booksWritten'), booksWritten);
       animateNumber(document.getElementById('booksRead'), booksRead);
