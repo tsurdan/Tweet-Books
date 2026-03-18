@@ -413,7 +413,7 @@
     .book-upright {
       position: relative;
       border-radius: 1px 2px 2px 1px;
-      animation: bookSlideIn .4s ease-out backwards;
+      animation: bookSlideIn .7s cubic-bezier(.23,1,.32,1) backwards;
       z-index: 1;
       box-shadow:
         1px 0 0 rgba(0,0,0,0.08) inset,
@@ -446,18 +446,10 @@
     }
 
     @keyframes bookSlideIn {
-      from { opacity: 0; transform: translateY(-8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Overflow label for very large counts */
-    .bookcase-overflow {
-      text-align: center;
-      font-size: .65rem;
-      color: var(--text-muted);
-      font-style: italic;
-      margin-top: 2px;
-      opacity: .7;
+      0%   { opacity: 0; transform: translateY(-15px) scaleY(.85); }
+      50%  { opacity: 1; transform: translateY(1px) scaleY(1.02); }
+      70%  { transform: translateY(-1px) scaleY(.99); }
+      100% { opacity: 1; transform: translateY(0) scaleY(1); }
     }
 
     .pile-count {
@@ -499,14 +491,15 @@
     .book-3d {
       position: relative;
       transform-style: preserve-3d;
-      animation: bookPlace .6s ease-out backwards;
+      animation: bookPlace .8s cubic-bezier(.23,1,.32,1) backwards;
     }
 
     @keyframes bookPlace {
-      0%   { opacity: 0; transform: translateY(-25px); }
-      60%  { opacity: 1; transform: translateY(2px); }
-      80%  { transform: translateY(-1px); }
-      100% { opacity: 1; transform: translateY(0); }
+      0%   { opacity: 0; transform: translateY(-30px) rotate(-2deg); }
+      40%  { opacity: 1; }
+      65%  { transform: translateY(2px) rotate(0.5deg); }
+      82%  { transform: translateY(-1px) rotate(-0.2deg); }
+      100% { opacity: 1; transform: translateY(0) rotate(0deg); }
     }
 
     /* Book top face (the spine cover we actually see) */
@@ -1595,7 +1588,7 @@
           const w = Math.min(120, 100 + (Math.random() - 0.5) * 30);
           const offset = (Math.random() - 0.5) * 6;
           const title = BOOK_TITLES[i % BOOK_TITLES.length];
-          container.appendChild(createBook(colors, h, w, offset, title, authorName, i * 0.08 + 0.1));
+          container.appendChild(createBook(colors, h, w, offset, title, authorName, i * 0.15 + 0.1));
         }
         return;
       }
@@ -1647,20 +1640,12 @@
           const colors = palette[idx % palette.length];
           const h = bookMinH + Math.random() * (bookMaxH - bookMinH);
           const w = bookW + (Math.random() - 0.5) * 4;
-          const delay = (s * 0.1) + (i * 0.03) + 0.1;
+          const delay = (s * 0.2) + (i * 0.06) + 0.15;
           row.appendChild(createUprightBook(colors, h, w, delay));
         }
 
         booksPlaced += booksOnShelf;
         bookcase.appendChild(row);
-      }
-
-      // Overflow hint for very large counts
-      if (rounded > totalBooks) {
-        const overflow = document.createElement('div');
-        overflow.className = 'bookcase-overflow';
-        overflow.textContent = '+ ' + (rounded - totalBooks).toLocaleString() + ' more';
-        bookcase.appendChild(overflow);
       }
 
       wrapper.appendChild(bookcase);
