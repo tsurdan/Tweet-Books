@@ -364,9 +364,33 @@
       display: flex;
       flex-direction: column-reverse;
       align-items: center;
-      min-height: 40px;
+      min-height: 30px;
       position: relative;
       order: 1;
+    }
+
+    /* Multi-pile row for large book counts */
+    .multi-pile-row {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      order: 1;
+    }
+
+    .sub-pile {
+      perspective: 600px;
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      position: relative;
+    }
+
+    .sub-pile .shelf {
+      width: 50px;
+      height: 8px;
+      box-shadow: 0 2px 4px rgba(61,46,31,0.15);
     }
 
     .pile-count {
@@ -699,7 +723,7 @@
     /* Literary joke — open book design */
     .literary-joke {
       position: relative;
-      margin: .75rem 0 0;
+      margin: 0 0 1.25rem;
       animation: jokeAppear .8s ease .3s backwards;
     }
 
@@ -814,6 +838,8 @@
       .card { padding: 1rem .75rem; margin-bottom: .75rem; }
       .book-piles-container { gap: .35rem; padding: .15rem 0; }
       .shelf { width: 100px; }
+      .sub-pile .shelf { width: 40px; }
+      .multi-pile-row { gap: 4px; }
       .book-3d .book-title { font-size: .38rem; }
       .pile-count { font-size: 1.4rem; margin-top: .2rem; }
       .pile-label { font-size: .8rem; margin-top: .2rem; }
@@ -821,7 +847,7 @@
       .username-row { flex-direction: column; }
       .btn-small { width: 100%; padding: 1rem; }
       .btn { padding: 1rem; font-size: 1.05rem; }
-      .literary-joke { margin-top: .35rem; }
+      .literary-joke { margin-bottom: .75rem; }
       .book-page { padding: .6rem .75rem .5rem; }
       .joke-text { font-size: .8rem; line-height: 1.35; }
       .result-banner { margin-bottom: .3rem; padding-bottom: .3rem; gap: .4rem; }
@@ -928,16 +954,17 @@
             <div class="pile-count" id="booksRead">0</div>
           </div>
         </div>
-        <!-- Literary joke (inside card for screenshot) -->
-        <div class="literary-joke" id="literaryJoke">
-          <div class="book-page">
-            <div class="joke-text" id="jokeText"></div>
-          </div>
-        </div>
       </div>
 
       <!-- Author rank -->
       <div class="author-rank" id="authorRank"></div>
+
+      <!-- Literary joke (outside pilesCard) -->
+      <div class="literary-joke" id="literaryJoke">
+        <div class="book-page">
+          <div class="joke-text" id="jokeText"></div>
+        </div>
+      </div>
 
       <!-- Math breakdown -->
       <details class="breakdown" id="breakdown">
@@ -1434,77 +1461,124 @@
       'anthology', 'letters', 'writings', 'typescript'
     ];
 
-    function buildBookPile(container, count, palette, authorName) {
-      container.innerHTML = '';
-      const isMobile = window.innerWidth <= 600;
-      const maxBooks = isMobile ? 7 : 10;
-      const displayCount = Math.max(1, Math.min(Math.round(count), maxBooks));
+    function createBook(colors, h, w, offset, title, authorName, delay) {
+      const cleanAuthor = authorName ? authorName.replace(/[^a-zA-Z]/g, '') : '';
+      const bookEl = document.createElement('div');
+      bookEl.className = 'book-3d';
+      bookEl.style.animationDelay = delay + 's';
+      bookEl.style.marginLeft = offset + 'px';
 
-      // Shelf
-      const shelf = document.createElement('div');
-      shelf.className = 'shelf';
-      container.appendChild(shelf);
+      const top = document.createElement('div');
+      top.className = 'book-top';
+      top.style.cssText = `width:${w}px;height:${h}px;background:linear-gradient(180deg,${adjustColor(colors.bg, 15)} 0%,${colors.bg} 20%,${adjustColor(colors.bg, -8)} 80%,${adjustColor(colors.bg, -20)} 100%);`;
 
-      for (let i = 0; i < displayCount; i++) {
-        const colors = palette[i % palette.length];
-        const h = 13 + Math.random() * 6;
-        const w = Math.min(120, 100 + (Math.random() - 0.5) * 30);
-        const offset = (Math.random() - 0.5) * 8;
-        const baseTitle = BOOK_TITLES[i % BOOK_TITLES.length] + (i < BOOK_TITLES.length ? '' : ' ' + (Math.floor(i / BOOK_TITLES.length) + 1));
-        const cleanAuthor = authorName ? authorName.replace(/[^a-zA-Z]/g, '') : '';
-
-        const bookEl = document.createElement('div');
-        bookEl.className = 'book-3d';
-        bookEl.style.animationDelay = (i * 0.12 + 0.1) + 's';
-        bookEl.style.marginLeft = offset + 'px';
-
-        // Top face (spine)
-        const top = document.createElement('div');
-        top.className = 'book-top';
-        top.style.cssText = `
-          width: ${w}px;
-          height: ${h}px;
-          background: linear-gradient(180deg,
-            ${adjustColor(colors.bg, 15)} 0%,
-            ${colors.bg} 20%,
-            ${adjustColor(colors.bg, -8)} 80%,
-            ${adjustColor(colors.bg, -20)} 100%
-          );
-        `;
-
-        // Title on spine
-        const titleEl = document.createElement('div');
-        titleEl.className = 'book-title';
-        const titleSpan = document.createElement('span');
-        titleSpan.textContent = baseTitle;
-        titleEl.appendChild(titleSpan);
-        if (cleanAuthor) {
-          const sep = document.createElement('span');
-          sep.className = 'title-sep';
-          sep.textContent = '|';
-          titleEl.appendChild(sep);
-          const authorEl = document.createElement('span');
-          authorEl.className = 'book-author';
-          authorEl.textContent = cleanAuthor;
-          titleEl.appendChild(authorEl);
-        }
-        titleEl.style.color = colors.accent + 'cc';
-        top.appendChild(titleEl);
-
-        // Pages edge
-        const pages = document.createElement('div');
-        pages.className = 'book-pages';
-
-        // Bottom shadow/depth
-        const bottom = document.createElement('div');
-        bottom.className = 'book-bottom';
-        bottom.style.background = adjustColor(colors.bg, -40);
-
-        bookEl.appendChild(top);
-        bookEl.appendChild(pages);
-        bookEl.appendChild(bottom);
-        container.appendChild(bookEl);
+      const titleEl = document.createElement('div');
+      titleEl.className = 'book-title';
+      const titleSpan = document.createElement('span');
+      titleSpan.textContent = title;
+      titleEl.appendChild(titleSpan);
+      if (cleanAuthor && w > 55) {
+        const sep = document.createElement('span');
+        sep.className = 'title-sep';
+        sep.textContent = '|';
+        titleEl.appendChild(sep);
+        const authorEl = document.createElement('span');
+        authorEl.className = 'book-author';
+        authorEl.textContent = cleanAuthor;
+        titleEl.appendChild(authorEl);
       }
+      titleEl.style.color = colors.accent + 'cc';
+      top.appendChild(titleEl);
+
+      const pages = document.createElement('div');
+      pages.className = 'book-pages';
+      const bottom = document.createElement('div');
+      bottom.className = 'book-bottom';
+      bottom.style.background = adjustColor(colors.bg, -40);
+
+      bookEl.appendChild(top);
+      bookEl.appendChild(pages);
+      bookEl.appendChild(bottom);
+      return bookEl;
+    }
+
+    function buildBookPile(container, count, palette, authorName) {
+      // Clear the wrapper (parent of container is .book-pile-wrapper)
+      const wrapper = container.parentElement;
+      // Remove any previous multi-pile rows
+      wrapper.querySelectorAll('.multi-pile-row').forEach(el => el.remove());
+      container.innerHTML = '';
+      container.style.display = '';
+
+      const rounded = Math.max(1, Math.round(count));
+
+      // Single pile: exact count up to 15 books
+      if (rounded <= 15) {
+        const shelf = document.createElement('div');
+        shelf.className = 'shelf';
+        container.appendChild(shelf);
+        for (let i = 0; i < rounded; i++) {
+          const colors = palette[i % palette.length];
+          const h = 14 + Math.random() * 5;
+          const w = Math.min(120, 100 + (Math.random() - 0.5) * 30);
+          const offset = (Math.random() - 0.5) * 6;
+          const title = BOOK_TITLES[i % BOOK_TITLES.length];
+          container.appendChild(createBook(colors, h, w, offset, title, authorName, i * 0.08 + 0.1));
+        }
+        return;
+      }
+
+      // Multiple sub-piles for larger counts
+      container.style.display = 'none';
+      const row = document.createElement('div');
+      row.className = 'multi-pile-row';
+
+      // Determine sub-pile layout
+      let booksPerPile, maxPiles;
+      if (rounded <= 50) {
+        booksPerPile = 10;
+        maxPiles = 5;
+      } else if (rounded <= 200) {
+        booksPerPile = 20;
+        maxPiles = 6;
+      } else {
+        booksPerPile = 50;
+        maxPiles = 8;
+      }
+
+      const totalPiles = Math.min(maxPiles, Math.ceil(rounded / booksPerPile));
+      const booksShown = Math.min(rounded, totalPiles * booksPerPile);
+      let booksLeft = booksShown;
+
+      for (let p = 0; p < totalPiles; p++) {
+        const pileBooks = Math.min(booksPerPile, booksLeft);
+        booksLeft -= pileBooks;
+
+        const subPile = document.createElement('div');
+        subPile.className = 'sub-pile';
+
+        const shelf = document.createElement('div');
+        shelf.className = 'shelf';
+        subPile.appendChild(shelf);
+
+        // Scale book size based on booksPerPile to keep piles compact
+        const bookH = booksPerPile <= 10 ? 10 : (booksPerPile <= 20 ? 6 : 4);
+        const bookW = booksPerPile <= 10 ? 50 : (booksPerPile <= 20 ? 45 : 40);
+
+        for (let i = 0; i < pileBooks; i++) {
+          const colors = palette[(p * booksPerPile + i) % palette.length];
+          const h = bookH + Math.random() * 3;
+          const w = bookW + (Math.random() - 0.5) * 10;
+          const title = BOOK_TITLES[(p * booksPerPile + i) % BOOK_TITLES.length];
+          subPile.appendChild(createBook(colors, h, w, 0, title, authorName, (p * 0.15) + (i * 0.04) + 0.1));
+        }
+
+        row.appendChild(subPile);
+      }
+
+      // Insert multi-pile row in the same position as the scene (order: 1)
+      row.style.order = '1';
+      wrapper.appendChild(row);
     }
 
     function adjustColor(hex, amount) {
