@@ -1895,7 +1895,26 @@
       const jokes = getStatJokes(booksWritten, booksRead, tweets, likes);
       const jokeEl = document.getElementById('literaryJoke');
       const jokeTextEl = document.getElementById('jokeText');
-      if (jokes.length > 0) {
+
+      // Easter eggs — special quotes for specific users
+      const EASTER_EGGS = {
+        'naamuli84':      'We all know that you read more than an ordinary person — even in cafes! ☕📚',
+        'eitanhaezrachi': 'Senatus Populusque Romanus. Rome wasn\'t built in a day, but its emperors tweeted with the discipline of legions. Ave, bookworm.',
+        'yehonatan1023':  '"The goal of philosophy is to educate the soul to see the divine light within itself." — Maimonides. You would have agreed, it seems.',
+        'yoav_tene3712':  '"Know thyself" was the inscribed wisdom long before psychology had a name. Viktor Frankl found meaning in the darkest places — your timeline agrees.',
+        'zeldapseudonym': 'Nikolai Gogol once said the words of a song are like the words of love — irresistible and eternal. Perhaps that\'s why Beethoven never finished his last symphony in peace.',
+        'shaiboharon':    'Rationality is systematized winning. Harry Potter and the Methods of Rationality has more words than the entire original HP series — and you\'ve read every footnote, haven\'t you?',
+        'eitanshimoni':   'Hedgehogs have one big idea they never forget, while foxes know many things. A certain spiky philosopher once said: "Every thorn is a chapter unwritten."',
+        'noamdos1':       'Breaking news from March 18, 1926: archaeologists unearth ancient library in Egypt containing over 12,000 scrolls — none of them tweets. Civilization, apparently, had different metrics.',
+        'yonash46':       '"Sometimes, if you stand on the bottom rail of a bridge and lean over to watch the river slipping slowly beneath you, you will suddenly know everything there is to be known." — Winnie the Pooh, pure wisdom.'
+      };
+
+      const easterEggText = EASTER_EGGS[username.toLowerCase()];
+
+      if (easterEggText) {
+        typeJokeText(jokeTextEl, easterEggText, Math.round(pileAnimDoneMs * 0.65));
+        jokeEl.style.display = '';
+      } else if (jokes.length > 0) {
         typeJokeText(jokeTextEl, jokes[0].text, Math.round(pileAnimDoneMs * 0.65));
         jokeEl.style.display = '';
       } else {
