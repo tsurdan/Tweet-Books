@@ -775,6 +775,8 @@
       text-align: center;
       font-family: 'Playfair Display', Georgia, serif;
       color: var(--accent-burgundy);
+      overflow: hidden;
+      word-break: break-word;
     }
 
     /* Spine edge */
@@ -829,6 +831,9 @@
       line-height: 1.45;
       color: var(--accent-burgundy);
       padding: 0 0.25rem;
+      display: block;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
     .joke-text .joke-word {
@@ -842,19 +847,19 @@
 
     .joke-text::before {
       content: '\201C';
-      font-size: 2rem;
-      line-height: 0;
-      vertical-align: -0.25em;
+      font-size: 1.4rem;
+      line-height: 1;
+      vertical-align: -0.15em;
       color: var(--accent-gold);
       opacity: 0.5;
-      margin-right: 2px;
+      margin-right: 1px;
       font-family: Georgia, serif;
     }
     .joke-text::after {
       content: '\201D';
-      font-size: 2rem;
-      line-height: 0;
-      vertical-align: -0.25em;
+      font-size: 1.4rem;
+      line-height: 1;
+      vertical-align: -0.15em;
       color: var(--accent-gold);
       opacity: 0.5;
       margin-left: 2px;
